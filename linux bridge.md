@@ -10,7 +10,9 @@ Phần 4: Hoạt động
 Note :  Không hỗ trợ kết nối wireless
 
 2.	Kiến trúc
- 
+![image](https://user-images.githubusercontent.com/50499526/161716957-9a0f0c6f-0edc-4e5c-8e1c-d44d340a2eaf.png)
+ ![image](https://user-images.githubusercontent.com/50499526/161716992-da8c96a6-1910-4242-9c04-ffbedfd287db.png)
+
  
 Note : các khái niệm cơ bản 
 •  Virtual switch port : là 1 port ảo trên switch ảo . 
@@ -18,7 +20,8 @@ Note : các khái niệm cơ bản
 • Uplink port : nhận toàn bộ lưu lương mạng ra/vào từ switch đến mạng bên ngoài
 • Virtual Ethernet port
 3.	Kiến trúc Linux bridge
- 
+ ![image](https://user-images.githubusercontent.com/50499526/161717025-73de0cd1-c4f3-4f44-8815-e10534d5aef5.png)
+
 Các thành phần :
 1  Eth0: cổng mạng máy host
 2  Tap0: interface kết nối giữa switch ảo đến các VM
@@ -30,7 +33,8 @@ Các thành phần :
 TAP interface : 
 -	Trong ảo hóa port mạng của VM chỉ xử lí được các frame Ethernet khác với vNIC xử lí khung ethernet . Nó sẽ bóc lớp header và chỉ chuyển tiếp lớp payload tới OS. 
 Cấu trúc khung Ethernet
- 
+ ![image](https://user-images.githubusercontent.com/50499526/161717060-912b0dde-0ba2-4847-b8bc-dccb08c48318.png)
+
 -	Do đó tap interface sẽ hỗ trợ chuyển tiếp khung Ethernet vào máy ảo để xử lí được như 1 port mạng vật lí
 4.	Hoạt động
 Khi có  gói tin cần ra ngoài internet :

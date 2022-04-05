@@ -1,0 +1,13 @@
+Network brigde trong KVM
+Mục lục
+Phần 1: Tổng quan
+Phần 2: Kiến trúc
+Phần 3: Cấu trúc và các thành phần
+Phần 4: Các khái niệm quan trọng
+Phần 5: Cấu hình
+1.	Tổng quan
+-	Brigde là cách kết nôi 2 Ethernet segmet với nhau thông qua giao thức độc lập. Các Packet được chuyển tiếp dựa trên Ethenet address ( cụ thể là MAC address ) , khác với IP address (như router)
+-	Bridged network sử dụng để chia sẻ mạng của thiết bị thật tới các Vm (VMs). Mỗi VM được cung cấp địa chỉ có sẵn của router tại dải mạng thực cung cấp cho host. Bridged networking cho phép VMs kết nối với mạng bên ngoài thông qua card mạng vật lý máy chủ.
+Note :  Không hỗ trợ kết nối wireless
+
+

@@ -45,5 +45,6 @@ Mô hình vận hành KVM
 -	B2 : chế độ Kernel-mode cung cấp thông tin tới phần cứng để thực hiện yêu cầu từ ioctl()
 - B3 : chế độ guest-mode : ( thực hiện code ) nhận thông tin và cung cấp  phần cứng để thực hiện yêu cầu ảo hóa và gửi tín hiệu đến cho kernel để tiếp tục luồng xử lí
 
-
-
+Các tool quản lí KVM
+Bao gồm  :
+-

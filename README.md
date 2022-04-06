@@ -41,7 +41,9 @@ Mô hình vận hành KVM
 
  
 
--	B1: KVM khởi chạy ở chế độ user mode gọi thư viện ioctl() để thực thi yêu cầu ( ví dụ như gửi khung ethernet ra ngoài internet )
+-	B1: KVM khởi chạy ở chế độ user mode gọi thư viện ioctl() để thực thi yêu cầu ( ví dụ như gửi khung ethernet ra ngoài internet , tạo ổ đĩa ảo ... )
 -	B2 : chế độ Kernel-mode cung cấp thông tin tới phần cứng để thực hiện yêu cầu từ ioctl()
+- B3 : chế độ guest-mode : ( thực hiện code ) nhận thông tin và cung cấp  phần cứng để thực hiện yêu cầu ảo hóa và gửi tín hiệu đến cho kernel để tiếp tục luồng xử lí
+
 
 

@@ -23,12 +23,18 @@ Note : các khái niệm cơ bản
  ![image](https://user-images.githubusercontent.com/50499526/161717025-73de0cd1-c4f3-4f44-8815-e10534d5aef5.png)
 
 Các thành phần :
-1  Eth0: cổng mạng máy host
-2  Tap0: interface kết nối giữa switch ảo đến các VM
-3  Bridge : hoạt động tương tụ như switch ảo layer 2
-4	Vfs ( virtual file system ): phân vùng ảo để chứa file , dữ liệu
-5	Fd ( forward database ): giao tiếp nhận dữ liệu giữa máy ảo và bridge 
-6	Read/write : dữ liệu được chuyển tiếp từ switch đến vfs
+
+ Eth0: cổng mạng máy host
+ Tap0: interface kết nối giữa switch ảo đến các VM
+ Bridge : hoạt động tương tụ như switch ảo layer 2
+	Vfs ( virtual file system ): phân vùng ảo để chứa file , dữ liệu
+	Fd ( forward database ): giao tiếp nhận dữ liệu giữa máy ảo và bridge 
+	Read/write : dữ liệu được chuyển tiếp từ switch đến vfs
+ 
+Các tính năng chính : 
+- STP: Spanning Tree Protocol – giao thức chống lặp gói tin trong mạng
+- VLAN: chia switch (do linux bridge tạo ra) thành các mạng LAN ảo, cô lập traffic giữa các VM trên các VLAN khác nhau của cùng một switch.
+- FDB (forwarding database): chuyển tiếp các gói tin theo database để nâng cao hiệu năng switch. Database lưu các địa chỉ MAC mà nó học được. Khi gói tin Ethernet đến, bridge sẽ tìm kiếm trong database có chứa MAC address không. Nếu không, nó sẽ gửi gói tin đến tất cả các cổng.
 
 TAP interface : 
 -	Trong ảo hóa port mạng của VM chỉ xử lí được các frame Ethernet khác với vNIC xử lí khung ethernet . Nó sẽ bóc lớp header và chỉ chuyển tiếp lớp payload tới OS. 

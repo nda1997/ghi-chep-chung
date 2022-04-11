@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-04-11T16:12:17.085Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36" etag="vOpAO8vxQTD--WwQoqVv" version="17.4.2" type="github">
+<mxfile host="app.diagrams.net" modified="2022-04-11T16:13:32.052Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36" etag="kVgy9huqJTAGiQruHm2S" version="17.4.2" type="github">
   <diagram id="6a731a19-8d31-9384-78a2-239565b7b9f0" name="Page-1">
     <mxGraphModel dx="2121" dy="1853" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
       <root>
@@ -173,8 +173,8 @@
         <mxCell id="PpkC8VUCtbI2EbVheNOO-17" value="E1/1&lt;br&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="320" y="700" width="40" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="PpkC8VUCtbI2EbVheNOO-18" value="vPC-1" style="rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="-130" y="790" width="390" height="50" as="geometry" />
+        <mxCell id="PpkC8VUCtbI2EbVheNOO-18" value="vPortChannel-1" style="rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="-88.75" y="800" width="288.75" height="50" as="geometry" />
         </mxCell>
         <mxCell id="PpkC8VUCtbI2EbVheNOO-21" value="" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.ec2_compute_container_3;fillColor=#F58534;gradientColor=none;" vertex="1" parent="1">
           <mxGeometry x="-85" y="1200" width="280" height="100" as="geometry" />
@@ -203,7 +203,7 @@
         <mxCell id="PpkC8VUCtbI2EbVheNOO-28" value="E1/6" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="400" y="700" width="40" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="PpkC8VUCtbI2EbVheNOO-29" value="vPC-6" style="rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+        <mxCell id="PpkC8VUCtbI2EbVheNOO-29" value="vPortChannel-6" style="rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="-70" y="1130" width="240" height="49.5" as="geometry" />
         </mxCell>
       </root>

@@ -1,77 +1,19 @@
-<mxfile host="app.diagrams.net" modified="2022-04-12T06:30:57.178Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36" etag="Xnj6I1FUW8QKuFZNFPNM" version="17.4.0" type="github">
-  <diagram id="SIfEIX9shqoMpLvyOCA6" name="Page-1">
-    <mxGraphModel dx="1422" dy="737" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="-f_z8n4vTAf5gziHOii1-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;dashed=1;strokeColor=#0000FF;" edge="1" parent="1" target="-f_z8n4vTAf5gziHOii1-11">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="270" y="360" as="sourcePoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;dashed=1;strokeColor=#0000FF;" edge="1" parent="1" source="-f_z8n4vTAf5gziHOii1-19" target="-f_z8n4vTAf5gziHOii1-11">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="630" y="360" as="sourcePoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-7" value="NFS server" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="190" y="490" width="80" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-8" value="NFS client&lt;br&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="720" y="490" width="70" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-11" value="" style="aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;fontColor=#4277BB;labelBackgroundColor=#ffffff;fontSize=12;spacingTop=3;image;image=img/lib/ibm/vpc/BlockStorage.svg;" vertex="1" parent="1">
-          <mxGeometry x="410" y="340" width="90" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-14" value="Mount Directory&lt;br&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="410" y="440" width="100" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeColor=#000066;" edge="1" parent="1" source="-f_z8n4vTAf5gziHOii1-15" target="-f_z8n4vTAf5gziHOii1-28">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-15" value="Host KVM-01" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
-          <mxGeometry x="130" y="330" width="140" height="160" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-16" value="GuestOs-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="-f_z8n4vTAf5gziHOii1-15">
-          <mxGeometry y="30" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-17" value="GuestOs-2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="-f_z8n4vTAf5gziHOii1-15">
-          <mxGeometry y="60" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-18" value="GuestOs-3" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;" vertex="1" parent="-f_z8n4vTAf5gziHOii1-15">
-          <mxGeometry y="90" width="140" height="70" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#33FF33;" edge="1" parent="1" source="-f_z8n4vTAf5gziHOii1-19" target="-f_z8n4vTAf5gziHOii1-23">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;strokeColor=#000066;" edge="1" parent="1" source="-f_z8n4vTAf5gziHOii1-19" target="-f_z8n4vTAf5gziHOii1-28">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-19" value="Host KVM-02" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;" vertex="1" parent="1">
-          <mxGeometry x="670" y="320" width="140" height="160" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-23" value="172.16.1.0/24" style="rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="320" y="530.25" width="270" height="39.5" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-27" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.093;exitY=1.029;exitDx=0;exitDy=0;exitPerimeter=0;strokeColor=#33FF33;" edge="1" parent="1" source="-f_z8n4vTAf5gziHOii1-18" target="-f_z8n4vTAf5gziHOii1-23">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="150" y="560" as="sourcePoint" />
-            <mxPoint x="200" y="510" as="targetPoint" />
-            <Array as="points">
-              <mxPoint x="143" y="550" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-28" value="IP Public" style="rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="310" y="240" width="270" height="39.5" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.537;entryY=0.051;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="-f_z8n4vTAf5gziHOii1-31" target="-f_z8n4vTAf5gziHOii1-28">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="-f_z8n4vTAf5gziHOii1-31" value="" style="aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;spacingTop=3;image;image=img/lib/active_directory/laptop_client.svg;" vertex="1" parent="1">
-          <mxGeometry x="419" y="70" width="72" height="80" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>
+Mô hình triển khai NFS
+
+![image](https://user-images.githubusercontent.com/50499526/162895899-e33508df-48d7-47b7-b716-e8642df0d4ad.png)
+
+
+*Note:  Ở đây sử dụng 2 máy centos 7.9*
+# Cài đặt trên máy NFS server
+### Cài đặt NFS
+- Chạy lệnh :
+    ``yum install nfs-utils``
+### Tạo thư mục để share data giữa 2 máy host 
+- mkdir -p  /root/share-data/ 
+- chmod -R 755 /root/share-data/
+- chown nfsnobody:nfsnobody /root/share-data/
+### Chạy các dịch vụ cần thiết 
+- systemctl start rpcbind
+- systemctl start nfs-server
+- systemctl start nfs-lock
+- systemctl start nfs-idmap

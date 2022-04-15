@@ -24,12 +24,12 @@ Note : các khái niệm cơ bản
 
 Các thành phần :
 
- Eth0: cổng mạng máy host
- Tap0: interface kết nối giữa switch ảo đến các VM
- Bridge : hoạt động tương tụ như switch ảo layer 2
-	Vfs ( virtual file system ): phân vùng ảo để chứa file , dữ liệu
-	Fd ( forward database ): giao tiếp nhận dữ liệu giữa máy ảo và bridge 
-	Read/write : dữ liệu được chuyển tiếp từ switch đến vfs
+- Eth0: cổng mạng máy host
+- Tap0: interface kết nối giữa switch ảo đến các VM
+- Bridge : hoạt động tương tụ như switch ảo layer 2
+- Vfs ( virtual file system ): phân vùng ảo để chứa file , dữ liệu
+- Fd ( forward database ): giao tiếp nhận dữ liệu giữa máy ảo và bridge 
+- Read/write : dữ liệu được chuyển tiếp từ switch đến vfs
  
 Các tính năng chính : 
 - STP: Spanning Tree Protocol – giao thức chống lặp gói tin trong mạng

@@ -37,8 +37,9 @@ Note : các khái niệm cơ bản
 - Vfs ( virtual file system ): phân vùng ảo để chứa file , dữ liệu 
 - Fd ( forward database ): giao tiếp nhận dữ liệu giữa máy ảo và bridge 
 - Read/write : dữ liệu được chuyển tiếp từ switch đến vfs
-**
-Các tính năng chính : 
+
+**Note** : VFS , FD có thể tìm thấy trong thư mục /proc  của máy host 
+##### Các tính năng chính : 
 - STP: Spanning Tree Protocol – giao thức chống lặp gói tin trong mạng
 - VLAN: chia switch (do linux bridge tạo ra) thành các mạng LAN ảo, cô lập traffic giữa các VM trên các VLAN khác nhau của cùng một switch.
 - FDB (forwarding database): chuyển tiếp các gói tin theo database để nâng cao hiệu năng switch. Database lưu các địa chỉ MAC mà nó học được. Khi gói tin Ethernet đến, bridge sẽ tìm kiếm trong database có chứa MAC address không. Nếu không, nó sẽ gửi gói tin đến tất cả các cổng.

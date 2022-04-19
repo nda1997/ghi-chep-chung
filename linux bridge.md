@@ -57,6 +57,23 @@ Khi có  gói tin cần ra ngoài internet :
 -  Từ FD sẽ tiếp tục đến vfs
 -  Tại đây kernel sẽ lấy gói tin trong vfs chuyển đến bridge qua tap interface
 -  Bridge sẽ lấy gói tin chuyển ra internet qua cổng eth0 của máy host
- 
+
+Chú ý đến các MAC address bôi đỏ như hình
+![image](https://user-images.githubusercontent.com/50499526/163908107-1f6fa3f0-e1ce-4620-82fe-a2eded28f76e.png)
+![image](https://user-images.githubusercontent.com/50499526/163908221-4034f32e-7054-49c3-90aa-8c835b3678e1.png)
+Ở đây ta có thể thấy sw ảo virbr2 sinh ra 1 card mạng ảo là virbr2-nic đóng vai trò interface giao tiêp với các VM  nên MAC 2 cái này trùng nhau. Vnet0 là card mạng eth0 của VM cũng có mac trùng nhau nên có thể hiểu vnet0 là tap-interface .
+Tiến hành ping và bắt bản tin lần lượt từ port eth0, vnet, virbr để kiểm tra luồng di chuyển của gói tin
+- Trên eth0 của VM
+![image](https://user-images.githubusercontent.com/50499526/163908657-d0805ba6-d242-4a14-800d-84817426c42f.png)
+- Trên vnet 
+![image](https://user-images.githubusercontent.com/50499526/163908713-2e8726e6-8c12-42b5-9f15-5dd2fbf8778e.png)
+- Trên virbr2
+![image](https://user-images.githubusercontent.com/50499526/163908764-2edf1cbc-fab6-47af-be3b-746e5beaf66c.png)
+
+Như ta thấy gói tin chỉ đi qua 2 địa chỉ vật lí là 52:54:00:40:07:7d-card eth0 của VM và 52:54:00:6b:1a:f7- card sw ảo của máy host .toàn bộ các thành phần như tap, fd , vfs không nhìn thấy .
+
+
+
+
 
 

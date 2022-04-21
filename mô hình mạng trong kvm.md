@@ -74,7 +74,8 @@ Với mô hình mạng kiểu này cũng cho phép ta cấp phát địa chỉ t
 - Tiến hành reboot máy ảo và kiểm tra IP đồng thời ping ra ngoài internet
 ![image](https://user-images.githubusercontent.com/50499526/164148260-9f5eda97-deba-40a6-ae3d-165510ff7fb8.png)
 
-
+## 3. Bridge 
+Ở đây sử dụng công nghệ linux bridge
 
 
 

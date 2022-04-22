@@ -66,12 +66,15 @@ Với mô hình mạng kiểu này cũng cho phép ta cấp phát địa chỉ t
 ![image](https://user-images.githubusercontent.com/50499526/164147191-9feb3f27-cd09-4c62-95c7-11e328da45c6.png)
 
 - Tạo mạng thành công như sau 
+- 
 ![image](https://user-images.githubusercontent.com/50499526/164147734-9b163a31-11e9-4e75-a7e7-d59135b64c8b.png)
 
 - Bây giờ tiến hành thao tác trên máy ảo. Ta chọng đúng tên mạng ta vừa tạo
+- 
 ![image](https://user-images.githubusercontent.com/50499526/164147885-e2ed38b6-11cb-424a-8248-b639b3423f9f.png)
 
 - Tiến hành reboot máy ảo và kiểm tra IP đồng thời ping ra ngoài internet
+- 
 ![image](https://user-images.githubusercontent.com/50499526/164148260-9f5eda97-deba-40a6-ae3d-165510ff7fb8.png)
 
 ## 3. Bridge 
@@ -96,6 +99,7 @@ B3: Kết luận
 Ở đây tôi tạo 2 VM có IP lần lượt là 172.16.1.22 và 172.16.1.29
 Tiến hành ping và bắt gói tin
 Trên eth1 , vnet , vlan16
+
 ![image](https://user-images.githubusercontent.com/50499526/164580326-9d781a96-7454-4d52-a14a-f6a423d3a646.png)
 
 Kết luận : Ở đây gói tin chưa được đánh tag vlan id do nó đã được chuyển tiếp đến cùng 1 VM cùng dải ip , 2 Linux bridge đã chuyển tiếp dữ liệu cho nhau trên cùng 1 mạng FLAT

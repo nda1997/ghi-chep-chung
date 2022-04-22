@@ -75,7 +75,62 @@ Với mô hình mạng kiểu này cũng cho phép ta cấp phát địa chỉ t
 ![image](https://user-images.githubusercontent.com/50499526/164148260-9f5eda97-deba-40a6-ae3d-165510ff7fb8.png)
 
 ## 3. Bridge 
-Ở đây sử dụng công nghệ linux bridge
+### 3.1. FLAT
+- Mạng Flat hay còn gọi là mạng phẳng . Ở đây các VM trong cùng 1 host sẽ kết nối đồng cấp vs nhau .
+- Mô hình :
+![image](https://user-images.githubusercontent.com/50499526/164423526-0158795a-561d-44de-9de9-ca970a03b42b.png)
+Các bước
+### 3.2 Vlan
+- Trên cùng 1 KVM
+
+![image](https://user-images.githubusercontent.com/50499526/164579562-79597bb6-3199-4678-944e-9dc8f8225220.png)
+Các bước thực hiện :
+B1: Tạo 2 VM trên cùng 1 KVM , gắn port eth 2 máy vào cùng 1 vlan16 được dẫn từ sw core xuống máy host
+B2: Ping 2 máy và bắt gói tin từ các phân đoạn để kiểm tra , cụ thể là vnet,eth, vlan16
+B3: Kết luận
+
+![image](https://user-images.githubusercontent.com/50499526/164579980-b5052dac-434a-49b5-acd5-558f949a2ae0.png)
+![image](https://user-images.githubusercontent.com/50499526/164580000-2d028f46-c924-40f4-9065-6f557fe65410.png)
+![image](https://user-images.githubusercontent.com/50499526/164580020-799016e2-4d3e-4239-8577-a330edeb9647.png)
+
+Ở đây tôi tạo 2 VM có IP lần lượt là 172.16.1.22 và 172.16.1.29
+Tiến hành ping và bắt gói tin
+Trên eth1 , vnet , vlan16
+![image](https://user-images.githubusercontent.com/50499526/164580326-9d781a96-7454-4d52-a14a-f6a423d3a646.png)
+
+Kết luận : Ở đây gói tin chưa được đánh tag vlan id do nó đã được chuyển tiếp đến cùng 1 VM cùng dải ip , 2 Linux bridge đã chuyển tiếp dữ liệu cho nhau trên cùng 1 mạng FLAT
+
+- Trên 2 KVM khác nhau cùng kết nối đến Switch
+
+![image](https://user-images.githubusercontent.com/50499526/164576546-5305d2b4-803a-42e0-825a-1274747d990c.png)
+
+
+Thành phần chính : 
+- Switch được cấu hình vlan 16 và dẫn vlan xuống 2 host KVM .
+- EM1 : ở đây là port mạng vật lí của 2 KVM
+
+Các bước thực hiện
+B1: Tạo 2 VM có trên đó có port mạng kết nối tới vlan 16 và đặt IP theo yêu cầu
+B2: Ta tiến hành ping giữa 2 VM và bắt gói tin trên từng phân đoạn cụ thể là : eth,vnet,vlan16,em1 
+B3: Kết luận đường đi của gói tin
+
+
+![image](https://user-images.githubusercontent.com/50499526/164577339-eaa955a8-19cd-407d-83b6-775ff2493434.png)
+![image](https://user-images.githubusercontent.com/50499526/164577374-a91f9032-3514-40f9-b096-959ac00c82c9.png)
+
+Tiến hành ping và bắt gói tin trên các đoạn
+kết quả thu tại eth(VM), vnet , vlan16
+
+![image](https://user-images.githubusercontent.com/50499526/164577791-a0de156b-571e-49ff-b79a-cfcee406fd4a.png)
+
+Kết quả thu gói tin tại card vật lí của máy host
+
+![image](https://user-images.githubusercontent.com/50499526/164578116-53c62f2e-6f77-4b25-887d-559ec850592b.png)
+
+Như ta thấy khi gói tin chuyển đến cổng vật lí của máy host nó sẽ được đánh tag vlan id vào rồi chuyển lên sw core để follow tiếp đến đúng port đã được cấu hình vlan16
+
+
+
 
 
 

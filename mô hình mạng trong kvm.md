@@ -81,6 +81,7 @@ Với mô hình mạng kiểu này cũng cho phép ta cấp phát địa chỉ t
 ### 3.1. FLAT
 - Mạng Flat hay còn gọi là mạng phẳng . Ở đây các VM trong cùng 1 host sẽ kết nối đồng cấp vs nhau .
 - Mô hình :
+
 ![image](https://user-images.githubusercontent.com/50499526/164423526-0158795a-561d-44de-9de9-ca970a03b42b.png)
 Các bước
 ### 3.2 Vlan

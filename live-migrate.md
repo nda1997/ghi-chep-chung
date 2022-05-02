@@ -34,6 +34,19 @@
       + QEMU / KVM sẽ theo dõi và ghi lại bất kỳ thay đổi nào của tất cả các trang bộ nhớ đã được chuyển trong quá trình di chuyển và bắt đầu chuyển các thay đổi của các trang bộ nhớ trong quá trình trước đó sau khi tất cả các trang bộ nhớ đã được chuyển
       + QEMU / KVM sẽ ước tính tốc độ truyền trong quá trình di chuyển. Khi dữ liệu bộ nhớ còn lại có thể được truyền trong một khoảng thời gian đã định (mặc định là 30 ms), QEMU / KVM sẽ tắt máy khách trên máy chủ nguồn, sau đó chuyển dữ liệu còn lại đến máy chủ đích.
       + Xác định lại máy ảo
+
+<a name="4"></a>
+## 3.1 Cold migrate
+
+- Ta tiến hành copy file ổ đĩa VM và file XML từ KVM1 sang KVM2
+
+![image](https://user-images.githubusercontent.com/50499526/166253219-f23f44f6-f7c9-42a6-8d75-593fe6e299de.png)
+
+- Define xml trên host đích
+![image](https://user-images.githubusercontent.com/50499526/166253425-1bc9a957-09ff-4490-affb-395326553f89.png)
+
+-Tiến hành bật máy ảo để kiểm tra
+
 <a name="5"></a>
 ## 3.2 Cấu hình Heat migrate 
 Tắt `firewalld` trên cả 3 máy

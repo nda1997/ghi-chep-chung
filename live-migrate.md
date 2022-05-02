@@ -4,11 +4,12 @@
 
 [1. Mô hình ](#1)
 
-[2. Cơ chế và cấu hình](#2)
+[2. Cơ chế ](#2)
 
-[3. Live Migration](#3)
 [3.1 Cold migrate](#4)
+
 [3.2 Heat migrate ](#5)
+
 <a name="1"></a>
 ## 1. Mô hình
 
@@ -16,8 +17,25 @@
 
 - 2 máy cài KVM và  nfs-client  
 - 1 máy cài nfs-server 
+<a name="2"></a>
+## 2.Cơ chế 
+- KVM live migration cung cấp 2 loại :
+   + cold migration (static migration)
+   + heat transfer (dynamic transfer) 
 
-## 2. Cấu hình 
+- Static migrate : Là phương án thủ công để di chuyển VM qua lại giữa 2 host KVM. Phương pháp này không cần NFS-server 
+  + Các bước thực hiện cũng đơn giản :
+     + B1 : Xác định thư mục lưu ổ đĩa và file xml của VM đó trên host nguồn , thực hiện copy sang thư mục lưu trữ của host đích
+     + B2 : Define lại máy ảo trên host mới
+
+- Dynamic transfer : 2 máy host cần có 1 thư mục lưu trữ chung ( ở trường hợp này tôi sử dụng nfs-server làm trung gian ). Do ổ đĩa ảo đã được lưu trữ trên pool storage chung nên quá trình thực hiện chỉ cần gửi trạng thái vcpu , bộ nhớ ram , trạng thái VM đến KVM đích
+   + Tiến trình migrate mô tả cụ thể như sau :
+      + Khi chuyển dịch máy ảo vẫn đang chạy như bình thường , bộ nhớ ram và các tiến trình được copy sang host đích 
+      + QEMU / KVM sẽ theo dõi và ghi lại bất kỳ thay đổi nào của tất cả các trang bộ nhớ đã được chuyển trong quá trình di chuyển và bắt đầu chuyển các thay đổi của các trang bộ nhớ trong quá trình trước đó sau khi tất cả các trang bộ nhớ đã được chuyển
+      + QEMU / KVM sẽ ước tính tốc độ truyền trong quá trình di chuyển. Khi dữ liệu bộ nhớ còn lại có thể được truyền trong một khoảng thời gian đã định (mặc định là 30 ms), QEMU / KVM sẽ tắt máy khách trên máy chủ nguồn, sau đó chuyển dữ liệu còn lại đến máy chủ đích.
+      + Xác định lại máy ảo
+<a name="5"></a>
+## 3.2 Cấu hình Heat migrate 
 Tắt `firewalld` trên cả 3 máy
 
 `systemctl stop firewalld`
@@ -87,10 +105,35 @@ systemctl restart libvirtd
 
 #### Làm tương tự trên host KVM còn lại
 
-- Giờ tiến hành tạo 1 VM trên KVM1
+- Giờ tiến hành tạo 1 VM trên KVM2
  ##### Lưu ý chọn đúng volume vừa tạo làm ổ đĩa của VM 
  
 ![image](https://user-images.githubusercontent.com/50499526/166246423-1efabcbc-72ac-49fd-9a76-e6f5edd00739.png)
 
+- Kết nối đến KVM2 
+
+![image](https://user-images.githubusercontent.com/50499526/166247394-08a2c058-506f-4059-a166-26466e5b1eb0.png)
+
+- Kết nối thành công và ta có thể nhìn thấy VM vừa tạo trên KVM còn lại 
+
+![image](https://user-images.githubusercontent.com/50499526/166247503-115a94e7-0184-4beb-97de-604d23c16781.png)
+
+- Heat migrate 
+  + Kiểm tra trạng thái VM trước khi migrate
+
+![image](https://user-images.githubusercontent.com/50499526/166248163-0499af95-f353-4976-82cc-1358bd6361a4.png)
+
+![image](https://user-images.githubusercontent.com/50499526/166248274-798e6212-0da1-47f5-8bde-71e524be287a.png)
+
+- Trạng thái của VM trong thời gian và sau khi migrate
+
+![image](https://user-images.githubusercontent.com/50499526/166248462-fccc946c-6b2f-40bd-b025-f3487d0b3839.png)
+
+![image](https://user-images.githubusercontent.com/50499526/166248609-b01ae086-acb5-403b-9836-67d4905adcc3.png)
+
+![image](https://user-images.githubusercontent.com/50499526/166248755-cecc930b-2119-4a76-8b17-1f7b72d6988b.png)
+
+- Sau khi migrate thành công ta define file XML của VM đó trên host mới để tránh việc reset bị mất VM
+### Như vậy là heat migrate thành công
 
 

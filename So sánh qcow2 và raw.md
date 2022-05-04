@@ -22,10 +22,10 @@ Như ta thấy thì kết quả có vẻ tương đối và hiệu năng của q
  
 - Định dạng qcow2 được hỗ trợ nhiều hơn raw trong KVM . Vì vậy muốn chuyển đổi qua lại giữa 2 định dạng để phù hợp với yêu cầu thực tiễn ta dùng lệnh sau
 
-```qemu-img convert -f qcow2 -O raw file-qcow2 tên-file-mới```
+``` qemu-img convert -f qcow2 -O raw file-qcow2 tên-file-mới ```
 
-    + option `-f` : ở đây là chọn fomart ổ đĩa 
-    + option `-O` : chọn format output
+     option -f : ở đây là chọn fomart ổ đĩa 
+     option -O : chọn format output
 
 ![image](https://user-images.githubusercontent.com/50499526/166510027-36240914-6ad2-4c76-9838-4a8c4680d519.png)
 

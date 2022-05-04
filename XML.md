@@ -66,8 +66,8 @@
     <apic/>
   </features>
 ```
-         + `acpi`: sử dụng quản lý máy ảo ( ví dụ như bắt buộc tắt máy ảo )
-         + `apic` : bộ điều khiển ngắt 
+         acpi: sử dụng quản lý máy ảo ( ví dụ như bắt buộc tắt máy ảo )
+         apic : bộ điều khiển ngắt 
 
 ### Note :  Khi ta thay đổi tham số trong file xml thì việc thay đổi chưa thực hiện ngay được . Ta cần define lại VM và khởi động lại máy ảo nếu cần thiết  
 ```sh

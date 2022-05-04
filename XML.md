@@ -94,7 +94,7 @@ Bước 2: Tạo disk
 + Tạo một ổ đĩa cho máy ảo khai báo dung lượng và định dạng là qcow2
 
 ```sh
-qemu-img create -f raw /var/lib/libvirt/images/manhduy.img 15G
+qemu-img create -f raw /var/lib/libvirt/images/anhnd-kvm01.qcow2 15G
 ```
 
 Bước 3 : Viết file xml

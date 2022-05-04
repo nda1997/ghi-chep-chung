@@ -6,7 +6,7 @@
 ### [1.2  External Snapshot](#3)
 
 ---
-### <a name="1"> 2. Hướng dẫn tạo Snapshot trên VM </a>
+### <a name="1"> 1. Hướng dẫn tạo Snapshot trên VM </a>
 - Snapshot là 1 bản lưu của hệ thống tại thời điểm ta tạo ra nó. Nó ghi lại toàn bộ dữ liệu , cài đặt , ứng dụng  trạng thái của máy ảo và ta có thể quay trở  lại thời điểm đó 1 cách dễ dàng.
 - libvirt hỗ trợ tạo snapshot khi máy ảo đang chạy và có 2 loại snapshot được hỗ trợ trong kvm:
    + Internal 

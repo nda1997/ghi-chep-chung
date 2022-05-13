@@ -34,9 +34,6 @@
   - Cơ sở dữ liệu của OVS , chứa cấu hình, giao diện,  VLAN, tạo chuyển mạch ảo, card mạng ...
  
   ` /etc/openvswitch/conf.db` :  là nơi lưu trữ cơ sở dữ liệu của ovsdb-server , được lưu dưới dạng json
-
-![image](https://user-images.githubusercontent.com/50499526/168019922-41568c8e-7a34-49b9-8cfe-5f4c1fcd2799.png)
-
   
   - Các kết nối socket được lưu tại /var/run/openvswitch/ 
 
@@ -84,6 +81,25 @@ Ta tiến hành kiểm tra 1 flow có trong ovs . Thông thường 1 flow sẽ c
   + ovs-ofctl : quản lý flow table, monitor ovs , cấu hình thông qua giao thức openFlow
   + sFlowTrend :  giám sát switch theo giao thức sflow
  
+
+
+<a name= '4'></a>
+### Mô tả luồng xử lí 1 gói tin
+
+![image](https://user-images.githubusercontent.com/50499526/168194959-8590b63c-05cb-4a89-914b-416ba5ddde86.png)
+
+1. Datapath nhận gói tin từ thiết bị ngoài 
+2. Sẽ có 2 hướng xử lí gói tin trong datapath kernel :
+  2.1. Datapath kiểm tra trong bộ nhớ đệm (cache) của mình xem có các flow tương ứng cho gói tin đó không . Nếu có nó sẽ thực thi action trên flow đó (gói tin sẽ được chuyển tiếp tới 1 port khác hoặc gắn vlan ....) . Thông thường cache sẽ lưu flow gần nhất mà datapath xử lí , các flow cũ hơn sẽ bị xóa bỏ.
+  2.2. Datapath kiểm tra không thấy có trong cache , nó chuyển tiếp gói tin tới ovs-switchd ở user-space để xử lí tiếp
+3. ovs-switchd tiếp nhận gói tin. Nó sẽ hỏi controller cách xử lí flow này như thế nào
+4. ovs-switchd sẽ tương tác với ovsdb-server để truy cập tới database . Nó kiểm tra flow table về các flow đang xử lí và sẽ lưu dữ liệu để phục vụ cho các lần truy vấn sau
+5. ovs-switchd sẽ gửi lại các gói tin vào datapath để xử lí cho đúng luồng
+6. Datapath check flow table để xử lí flow cho đúng luồng
+7. Datapath sẽ chuyển tiếp gói mạng đi hoặc loại bỏ theo các flow trong database
+
+
+**Note** : Nếu như ovs-switchd kiểm tra trong  flow table mà vẫn không thấy dữ liệu cho việc xử lí flow đó như thế nào thì sẽ dẫn đến việc các flow chuyển đến datapath sẽ bị datapath drop-action. Như vậy sẽ xảy ra hiện tượng như Network unreachable , disconected ... 
 
 
 

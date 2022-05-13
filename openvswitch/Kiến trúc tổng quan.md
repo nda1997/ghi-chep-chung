@@ -19,8 +19,15 @@
 
 <a name= '1'></a>
 ### 2.Kiến trúc
+
+![image](https://user-images.githubusercontent.com/50499526/168228708-cefe8b24-b75b-4c7d-bf4a-9cbf76522b13.png)
+
+
 ---
+<a name='5'></a>
 ### 2.1 Mô hình 
+
+![image](https://user-images.githubusercontent.com/50499526/168228919-a08ba57a-6b64-49cf-865c-bfccc87df9ad.png)
 
 ![image](https://user-images.githubusercontent.com/50499526/167980294-3704de46-c152-4c4c-815c-563d990e90d6.png)
 
@@ -28,6 +35,8 @@
   + Kernel space : lớp nhân tiếp nhận xử lí luồng tin
   + User-space :  người dùng tương tác với các trình quản lí trong OVS 
   + Remote: Lớp giám sát 
+
+<a name='3'></a>
 ### 2.2 Các thành phần  chính :
 
 #### ovs-vswitchd : 

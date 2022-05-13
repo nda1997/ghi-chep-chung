@@ -1,10 +1,15 @@
 # Kiến trúc tổng quan trong OpenVswitch
 --- 
-[1. Khái niệm chung ](#2)
+[1. Khái niệm chung](#2)
+
 [2. Openvswitch Architechture](#1)
-  - [2.1. Mô hình ](#5)
-  - [2.2.Thành phần chính ](#3)
-  - [2.3.Các thức hoạt động ](#4)
+
+  [2.1. Mô hình](#5)
+  
+  [2.2.Thành phần chính](#3)
+  
+  [2.3.Các thức hoạt động](#4)
+
 
 <a name='2' ></a>
 ### Khái niệm chung

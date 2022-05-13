@@ -1,8 +1,8 @@
 # Kiến trúc tổng quan trong OpenVswitch
 --- 
 [1. Khái niệm chung ](#2)
-[2. Openvswitch Architechture] (#1)
-  - [2.1. Mô hình ] (#5)
+[2. Openvswitch Architechture](#1)
+  - [2.1. Mô hình ](#5)
   - [2.2.Thành phần chính ](#3)
   - [2.3.Các thức hoạt động ](#4)
 
@@ -101,6 +101,20 @@ Ta tiến hành kiểm tra 1 flow có trong ovs . Thông thường 1 flow sẽ c
 
 **Note** : Nếu như ovs-switchd kiểm tra trong  flow table mà vẫn không thấy dữ liệu cho việc xử lí flow đó như thế nào thì sẽ dẫn đến việc các flow chuyển đến datapath sẽ bị datapath drop-action. Như vậy sẽ xảy ra hiện tượng như Network unreachable , disconected ... 
 
+
+## Cơ sở dữ liệu cho Open vSwitch (ovs-db) 
+
+- Sử dụng câu lệnh `ovsdb-client dump` để lấy dữ liệu database từ tệp /etc/openvswitch/conf.db
+
+![image](https://user-images.githubusercontent.com/50499526/168203774-bace1a18-9e0e-4b4d-b814-e89e0816304b.png)
+
+![image](https://user-images.githubusercontent.com/50499526/168203791-25a202a7-5927-4a32-9eb8-652b7fa6ad45.png)
+
+Ta sẽ nhận thấy các trường dữ liệu của openvswitch để quản lý flow và các bridge
+
+- Mối quan hệ giữa các thành phần trong bảng dữ liệu
+
+![image](https://user-images.githubusercontent.com/50499526/168205354-237c5ebe-915f-4bcd-873d-89b2e0a0f14e.png)
 
 
 

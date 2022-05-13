@@ -12,15 +12,15 @@
 
 
 <a name='2' ></a>
-### Khái niệm chung
+### 1.Khái niệm chung
 - Openvswitch là 1 phần mềm  cung cấp môi trường ở lớp 2 và 3 trong mô hình OSI . Sử dụng nhiều ở điện toán đám mây nhắm quản trị , kết nối các máy ảo trong đó.
 - OpenvSwitch (OVS) hỗ trợ nhiều nền tảng ảo hóa như Xen/XenServer, KVM, và VirtualBox.
 - OVS hỗ trợ các tính năng sau: VLAN tagging & 802.1q trunking, spaning tree , LACP, SPAN/RSPAN, Tunneling Protocols ,QoS
 
 <a name= '1'></a>
-### Kiến trúc
+### 2.Kiến trúc
 ---
-- Mô hình 
+### 2.1 Mô hình 
 
 ![image](https://user-images.githubusercontent.com/50499526/167980294-3704de46-c152-4c4c-815c-563d990e90d6.png)
 
@@ -28,7 +28,7 @@
   + Kernel space : lớp nhân tiếp nhận xử lí luồng tin
   + User-space :  người dùng tương tác với các trình quản lí trong OVS 
   + Remote: Lớp giám sát 
-- Các thành phần  chính :
+### 2.2 Các thành phần  chính :
 
 #### ovs-vswitchd : 
   - Đóng vai trò deamon thực hiền các chức năng chuyển mạch trong ovs . Nó giao tiếp với controller bằng giao thức openflow , với ovsdb-server bàng giao thức ovsdb , với datapath bằng giao thức netlink . Nó sẽ đọc cấu hình trong ovsdb-server khi khởi động sau đó sẽ tự cấu hình flow table .
@@ -89,7 +89,7 @@ Ta tiến hành kiểm tra 1 flow có trong ovs . Thông thường 1 flow sẽ c
 
 
 <a name= '4'></a>
-### Mô tả luồng xử lí 1 gói tin
+### 2.3 Mô tả luồng xử lí 1 gói tin
 
 ![image](https://user-images.githubusercontent.com/50499526/168194959-8590b63c-05cb-4a89-914b-416ba5ddde86.png)
 

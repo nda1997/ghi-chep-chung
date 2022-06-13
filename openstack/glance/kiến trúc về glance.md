@@ -65,4 +65,17 @@ Container Formats mô tả định dạng files và chứa các thông tin metad
 
 **Store**
 
-- Glanc
+- Glance hỗ trợ nhiều loại repository để lưu image :
+  + file system : lưu trữ image trong hệ thống ( cụ thể trong đường dẫn : /var/lib/glance/images )
+  + object store: hệ thống lưu trữ openstack swift , các image lưu theo định dạng object
+  + block store : hệ thống lưu trữ openstack cinder, image lưu theo các khối dữ liệu
+  + http : glance có thể đọc các iamge máy ảo có sẵn trên internet thông qua giao thức http 
+  + rados block device (RBD) : lưu image vào cụm ceph.
+
+### 5. Các file cấu hình của glance
+
+- **glance-api.conf** : File cấu hình cho API của image service.
+- **glance-registry.conf** : File cấu hình cho glance image registry - nơi lưu trữ metadata về các images.
+- **glance-scrubber.conf** : Được dùng để dọn dẹp các image đã được xóa
+- **policy.json** : Bổ sung truy cập kiểm soát áp dụng cho các image service. Trong này, chúng tra có thể xác định vai trò, chính sách, làm tăng tính bảo mật trong Glane OpenStack.
+

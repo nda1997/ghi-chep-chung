@@ -1,17 +1,25 @@
 # Tìm hiểu tổng quan Image Service - Glance
 ### Mục lục
-1. Giới thiệu về glance
-2. Thành phần 
-3. Kiến trúc 
-4. Định dạng image trong glance
+
+[1. Giới thiệu về glance](#1)
+
+[2. Thành phần](#2) 
+
+[3. Kiến trúc ](#3)
+
+[4. Định dạng image trong glance](#4)
+
+[5. các file cấu hình glance ](#5)
 
 ---
 
+<a name ="1"></a>
 #### 1. Glance là gì
 
 - Glance là thành phần chịu trách nhiệm về dịch vụ image trong openstack . Các chức năng của nó bao gồm tìm kiếm , đăng ký, thu thập thông tin về image. Bản thân glance không phải là nơi lưu trữ image .
 - Giống như 1 proxy , glance liên kết với các thành phần khác trong openstack để người dùng tương tác và truy vấn đến các image cần thiết thông qua API mà nó cung cấp
 
+<a name ="2"></a>
 #### 2. Thành phần chính 
 
 ![image](https://user-images.githubusercontent.com/50499526/173264015-42a77b4d-7d7a-412e-907d-929755c73d79.png)
@@ -22,6 +30,7 @@
   + glance-database: cung cấp nơi lưu trữ cho metadata 
   + store-backend: glance sẽ không tự lưu image , nó sẽ lưu ở vùng lưu phụ trợ ( swift, filesystem, S3...)
 
+<a name ="3"></a>
 #### 3. Kiến trúc 
 
 ![image](https://user-images.githubusercontent.com/50499526/173264674-efb0ed4f-25dd-4b90-80bc-9e3d0b2115cd.png)
@@ -34,7 +43,7 @@
   + Database Abstraction Layer : chịu trách nhiệm kết nối giữa domain controller và database 
   + Store drivers : tổ chức tương tác giữa glance và các vùng lưu trữ image
 
-
+<a name ="4"></a>
 #### 4. Định dạng image
 
 **Disk Formats**
@@ -72,6 +81,7 @@ Container Formats mô tả định dạng files và chứa các thông tin metad
   + http : glance có thể đọc các iamge máy ảo có sẵn trên internet thông qua giao thức http 
   + rados block device (RBD) : lưu image vào cụm ceph.
 
+<a name ="5"></a>
 ### 5. Các file cấu hình của glance
 
 - **glance-api.conf** : File cấu hình cho API của image service.

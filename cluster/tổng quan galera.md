@@ -56,7 +56,5 @@ Ta có thể tùy chọn phương thức cho cluster và trạng thái cho các 
   
   ```  wsrep_sst_donor  = "node1, node2" ```
   
-
-    
     
     

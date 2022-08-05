@@ -46,6 +46,8 @@ net.ipv4.tcp_keepalive_probes = 6
 net.ipv4.ip_forward = 1
 net.ipv4.conf.all.rp_filter = 0
 net.ipv4.conf.default.rp_filter = 0
+net.bridge.bridge-nf-call-iptables
+net.bridge.bridge-nf-call-ip6tables
 EOF
 
 ```
@@ -281,15 +283,533 @@ openstack token issue
 - Tạo databases
 ```
 CREATE DATABASE glance;
+GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'glance';
+GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'glance';
+```
+- Tạo user
+```
+openstack user create  glance --domain default --password glance
+openstack role add --project service --user glance admin
+```
+- Tạo endpoint
+```
+openstack service create --name glance --description "OpenStack Image" image
+openstack endpoint create --region RegionOne image public http://172.16.4.200:9292
+openstack endpoint create --region RegionOne image internal http://172.16.4.200:9292
+openstack endpoint create --region RegionOne image admin http://172.16.4.200:9292
+```
+- Cài đặt 
+```
+yum install openstack-glance MySQL-python python-devel
+```
+- Cấu hình file glance-api
+```
+cp /etc/glance/glance-api.conf /etc/glance/glance-api.conf.orig
+[database]
+# ...
+connection = mysql+pymysql://glance:glance@controller/glance
+[keystone_authtoken]
+# ...
+www_authenticate_uri  = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = glance
+password = glance
+[paste_deploy]
+# ...
+flavor = keystone
+[glance_store]
+# ...
+stores = file,http
+default_store = file
+filesystem_store_datadir = /var/lib/glance/images/
+```
+- Đồng bộ databases
+```
+su -s /bin/sh -c "glance-manage db_sync" glance
+```
+- Khởi động service
+```
+systemctl enable openstack-glance-api.service
+systemctl start openstack-glance-api.service
+```
+***4.4 Cài đặt placement***
+- Tạo DB
+```
+CREATE DATABASE placement;
+GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'localhost' IDENTIFIED BY 'placement';
+GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'%' IDENTIFIED BY 'placement';
+```
+- Tạo user và phần quyền 
+```
+openstack user create --domain default --password-prompt placement
+openstack role add --project service --user placement admin
+```
+- Tạo service và endpoint
+```
+openstack service create --name placement --description "Placement API" placement
+openstack endpoint create --region RegionOne placement public http://controller:8778
+openstack endpoint create --region RegionOne placement internal http://controller:8778
+openstack endpoint create --region RegionOne placement admin http://controller:8778
+```
+- Cài đặt 
+```
+yum install openstack-placement-api -y
+```
+- Cấu hình file /etc/placement/placement.conf
+```
+[placement_database]
+# ...
+connection = mysql+pymysql://placement:placement@controller/placement
+[api]
+# ...
+auth_strategy = keystone
+[keystone_authtoken]
+# ...
+auth_url = http://controller:5000/v3
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = placement
+password = placement
+```
+- đồng bộ DB
+```
+su -s /bin/sh -c "placement-manage db sync" placement
+```
+- Restart HTTPD
+```
+systemctl restart httpd
+```
+***4.5 Cài đặt Nova***
+- Tạo database
+```
+CREATE DATABASE nova_api;
+CREATE DATABASE nova;
+CREATE DATABASE nova_cell0;
+GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY 'nova';
+GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY 'nova';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'nova';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'nova';
+GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY 'nova';
+GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY 'nova';
+```
+- Tạo user và phần quyền
+```
+openstack user create --domain default --password-prompt nova
+openstack role add --project service --user nova admin
+```
+- Tạo endpoint
+```
+openstack service create --name nova --description "OpenStack Compute" compute
+openstack endpoint create --region RegionOne compute public http://controller:8774/v2.1
+openstack endpoint create --region RegionOne compute internal http://controller:8774/v2.1
+openstack endpoint create --region RegionOne compute admin http://controller:8774/v2.1
+```
+- Cài đặt các gói 
+```
+yum install openstack-nova-api openstack-nova-conductor openstack-nova-novncproxy openstack-nova-scheduler
+```
+- Cấu hình nova chỉnh sửa các section dưới 
+```
+vi /etc/nova/nova.conf
+[DEFAULT]
+# ...
+enabled_apis = osapi_compute,metadata
+transport_url = rabbit://openstack:openstack@controller:5672/
+my_ip = 172.16.4.200
+use_neutron = true
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+[api_database]
+# ...
+connection = mysql+pymysql://nova:nova@controller/nova_api
+[database]
+# ...
+connection = mysql+pymysql://nova:nova@controller/nova
+[api]
+# ...
+auth_strategy = keystone
+[keystone_authtoken]
+# ...
+www_authenticate_uri = http://controller:5000/
+auth_url = http://controller:5000/
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = nova
+password = nova
+[vnc]
+enabled = true
+# ...
+server_listen = $my_ip
+server_proxyclient_address = $my_ip
+[glance]
+# ...
+api_servers = http://controller:9292
+[oslo_concurrency]
+# ...
+lock_path = /var/lib/nova/tmp
+[placement]
+# ...
+region_name = RegionOne
+project_domain_name = Default
+project_name = service
+auth_type = password
+user_domain_name = Default
+auth_url = http://controller:5000/v3
+username = placement
+password = placement
+```
+- Đồng bộ DB
+```
+su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova
+su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova
+su -s /bin/sh -c "nova-manage db sync" nova
+Xác nhận lại nova cell0 ,cell1 đã chạy thành công chưa
+su -s /bin/sh -c "nova-manage cell_v2 list_cells" nova
+```
+- Khời động service
+```
+systemctl enable openstack-nova-api.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
+systemctl start openstack-nova-api.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
+```
+***4.6 Cài đặt Cinder***
+- Tạo DB
+```
+CREATE DATABASE cinder;
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' IDENTIFIED BY 'cinder';
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'cinder';
+```
+- Tạo user và phân quyền 
+```
+openstack user create --domain default --password-prompt cinder
+openstack role add --project service --user cinder admin
+```
+- Tạo service và endpoint
+```
+openstack service create --name cinderv2 --description "OpenStack Block Storage" volumev2
+openstack service create --name cinderv3 --description "OpenStack Block Storage" volumev3
+openstack endpoint create --region RegionOne volumev2 public http://controller:8776/v2/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev2 internal http://controller:8776/v2/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev2 admin http://controller:8776/v2/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev3 public http://controller:8776/v3/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev3 internal http://controller:8776/v3/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev3 admin http://controller:8776/v3/%\(project_id\)s
+```
+- Cài đặt 
+```
+yum install openstack-cinder lvm2 device-mapper-persistent-data  targetcli python-keystone
+```
+- Tạo phân vùng lưu trữ lvm cho cinder 
+****Ở đây ta attach thêm ổ cứng vào controller****
+```
+pvcreate /dev/sdb
+vgcreate cinder-volumes /dev/sdb
+```
+- Cấu hình /etc/lvm/lvm.conf để nhận volume-group vừa tạo 
+```
+devices {
+...
+filter = [ "a/.*/" ]
+```
+- Cấu hình cinder 
+```
+/etc/cinder/cinder.conf
+[DEFAULT]
+# ...
+transport_url = rabbit://openstack:openstack@controller
+auth_strategy = keystone
+my_ip = 172.16.4.200
+enabled_backends = lvm
+glance_api_servers = http://controller:9292
+[database]
+# ...
+connection = mysql+pymysql://cinder:cinder@controller/cinder
+[keystone_authtoken]
+# ...
+www_authenticate_uri = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = cinder
+password = cinder
+[oslo_concurrency]
+# ...
+lock_path = /var/lib/cinder/tmp
+[lvm]
+volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+volume_group = cinder-volumes
+target_protocol = iscsi
+target_helper = lioadm
+```
+- Đồng bộ DB
+```
+su -s /bin/sh -c "cinder-manage db sync" cinder
+```
+- Khởi động service
+```
+systemctl enable openstack-cinder-volume.service target.service lvm2-lvmetad.service
+systemctl start openstack-cinder-volume.service target.service lvm2-lvmetad.service
+```
+- thêm cấu hình /etc/nova/nova.conf
+```
+[cinder]
+os_region_name = RegionOne
+```
+***4.7 Cài đặt neutron***
+- Tạo DB
+```
+CREATE DATABASE neutron;
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'neutron';
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'neutron';
+```
+- Tạo user và phân quyền 
+```
+openstack user create --domain default --password-prompt neutron
+openstack role add --project service --user neutron admin
+```
+- Tạo service và endpoint
+```
+openstack service create --name neutron --description "OpenStack Networking" network
+openstack endpoint create --region RegionOne network public http://controller:9696
+openstack endpoint create --region RegionOne network internal http://controller:9696
+openstack endpoint create --region RegionOne network admin http://controller:9696
+```
+#### Có 2 mô hình mạng là self-service và provider ####
+##### Cài đặt theo kiến trúc provider #####
+- Cài đặt các gói neutron
+```
+yum install openstack-neutron openstack-neutron-ml2 openstack-neutron-linuxbridge ebtables 
+```
+- Chỉnh sửa file /etc/neutron/neutron.conf
+```
+[database]
+# ...
+connection = mysql+pymysql://neutron:neutron@controller/neutron
+[DEFAULT]
+# ...
+core_plugin = ml2
+service_plugins =
+transport_url = rabbit://openstack:openstack@controller
+auth_strategy = keystone
+notify_nova_on_port_status_changes = true
+notify_nova_on_port_data_changes = true
+[keystone_authtoken]
+# ...
+www_authenticate_uri = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = neutron
+[nova]
+# ...
+auth_url = http://controller:5000
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = nova
+password = nova
+[oslo_concurrency]
+# ...
+lock_path = /var/lib/neutron/tmp
+```
+- Cấu hình file /etc/neutron/plugins/ml2/ml2_conf.ini
+```
+[ml2]
+# ...
+type_drivers = flat,vlan
+tenant_network_types =
+mechanism_drivers = linuxbridge
+extension_drivers = port_security
+[ml2_type_flat]
+# ...
+flat_networks = provider
+[securitygroup]
+# ...
+enable_ipset = true
+```
+- Cấu hình file /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+```
+[linux_bridge]
+physical_interface_mappings = provider:PROVIDER_INTERFACE_NAME ( Ở đây có 1 dải mạng nên để là eth0 )
+[vxlan]
+enable_vxlan = false
+[securitygroup]
+# ...
+enable_security_group = true
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+```
+- thêm vào file /etc/nova/nova.conf
+```
+[neutron]
+# ...
+auth_url = http://controller:5000
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = neutron
+password = NEUTRON_PASS
+service_metadata_proxy = true
+metadata_proxy_shared_secret = admin
 ```
 
+##### Tùy chọn 2 : sử dụng mạng self-service #####
+- Chỉnh sửa file /etc/neutron/neutron.conf
+```
+[database]
+# ...
+connection = mysql+pymysql://neutron:neutron@controller/neutron
+[DEFAULT]
+# ...
+core_plugin = ml2
+service_plugins = router
+allow_overlapping_ips = true
+transport_url = rabbit://openstack:openstack@controller
+auth_strategy = keystone
+notify_nova_on_port_status_changes = true
+notify_nova_on_port_data_changes = true
+[keystone_authtoken]
+# ...
+www_authenticate_uri = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = neutron
+[nova]
+# ...
+auth_url = http://controller:5000
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = nova
+password = nova
+[oslo_concurrency]
+# ...
+lock_path = /var/lib/neutron/tmp
+```
 
+- Chỉnh sửa file /etc/neutron/plugins/ml2/ml2_conf.ini
+```
+[ml2]
+# ...
+type_drivers = flat,vlan,vxlan
+tenant_network_types = vxlan
+mechanism_drivers = linuxbridge,l2population
+extension_drivers = port_security
+[ml2_type_flat]
+# ...
+flat_networks = provider
+[ml2_type_vxlan]
+# ...
+vni_ranges = 1:1000
+[securitygroup]
+# ...
+enable_ipset = true
+```
+*****Lưu ý sau khi configure ml2 plug-in thì xóa bỏ dòng type_driver để tránh việc không nhất quán database*****
+- Chỉnh sửa file /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+```
+[linux_bridge]
+physical_interface_mappings = provider:PROVIDER_INTERFACE_NAME
+[vxlan]
+enable_vxlan = true
+local_ip = OVERLAY_INTERFACE_IP_ADDRESS
+l2_population = true
+[securitygroup]
+# ...
+enable_security_group = true
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+```
+- chỉnh sửa file /etc/neutron/l3_agent.ini
+```
+[DEFAULT]
+# ...
+interface_driver = linuxbridge
+```
+- khởi chạy dịch vụ
+```
+systemctl enable neutron-server.service neutron-linuxbridge-agent.service neutron-l3-agent.service
+systemctl start  neutron-server.service neutron-linuxbridge-agent.service neutron-l3-agent.service
+```
 
+***4.8 Cài đặt horizon***
+- cài đặt 
+```
+yum install openstack-dashboard -y
+```
+- sửa file /etc/openstack-dashboard/local_settings
+```
+OPENSTACK_HOST = "controller"
+ALLOWED_HOSTS = ['*',]
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+CACHES = {
+    'default': {
+         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+         'LOCATION': 'controller:11211',
+    }
+}
+OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
+OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
+OPENSTACK_API_VERSIONS = {
+    "identity": 3,
+    "image": 2,
+    "volume": 3,
+}
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "Default"
+OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 
+*****Nếu chọn provider network thêm đoạn sau để disable support layer3-network*****
+OPENSTACK_NEUTRON_NETWORK = {
+    ...
+    'enable_router': False,
+    'enable_quotas': False,
+    'enable_distributed_router': False,
+    'enable_ha_router': False,
+    'enable_lb': False,
+    'enable_firewall': False,
+    'enable_vpn': False,
+    'enable_fip_topology_check': False,
+}
+TIME_ZONE = "TIME_ZONE"
+```
+- Thêm dòng sau vào file /etc/httpd/conf.d/openstack-dashboard.conf
+```
+WSGIApplicationGroup %{GLOBAL}
+```
+- Khởi động lại service
+```
+systemctl restart httpd.service memcached.service
+```
 
+<a name="compute"></a>
+## 5. Cài đặt node compute
 
-
-
+***5.1 cài đặt nova-compute***
 
 
 

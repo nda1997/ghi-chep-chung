@@ -344,10 +344,12 @@ systemctl start openstack-glance-api.service
 CREATE DATABASE placement;
 GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'localhost' IDENTIFIED BY 'placement';
 GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'%' IDENTIFIED BY 'placement';
+flush privileges;
+exit;
 ```
 - Tạo user và phần quyền 
 ```
-openstack user create --domain default --password placement
+openstack user create placement --domain default --password placement
 openstack role add --project service --user placement admin
 ```
 - Tạo service và endpoint
@@ -400,10 +402,12 @@ GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'nova';
 GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'nova';
 GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY 'nova';
 GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY 'nova';
+flush privileges;
+exit;
 ```
 - Tạo user và phần quyền
 ```
-openstack user create --domain default --password-prompt nova
+openstack user create nova --domain default --password nova
 openstack role add --project service --user nova admin
 ```
 - Tạo endpoint
@@ -468,9 +472,12 @@ user_domain_name = Default
 auth_url = http://controller:5000/v3
 username = placement
 password = placement
+[wsgi]
+api_paste_config = /etc/nova/api-paste.ini
 ```
 - Đồng bộ DB
 ```
+su -s /bin/sh -c "nova-manage api_db sync" nova
 su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova
 su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova
 su -s /bin/sh -c "nova-manage db sync" nova
@@ -491,7 +498,7 @@ GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'cinder';
 ```
 - Tạo user và phân quyền 
 ```
-openstack user create --domain default --password-prompt cinder
+openstack user create cinder --domain default --password cinder
 openstack role add --project service --user cinder admin
 ```
 - Tạo service và endpoint
@@ -577,7 +584,7 @@ GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'neutron';
 ```
 - Tạo user và phân quyền 
 ```
-openstack user create --domain default --password-prompt neutron
+openstack user create neutron --domain default --password neutron
 openstack role add --project service --user neutron admin
 ```
 - Tạo service và endpoint

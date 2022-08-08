@@ -136,7 +136,7 @@ curl -O http://localhost:15672/cli/rabbitmqadmin
 chmod a+x rabbitmqadmin
 mv rabbitmqadmin /usr/sbin/
 rabbitmqadmin list users
-rabbitmqctl add_user openstack Welcome123
+rabbitmqctl add_user openstack openstack
 rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 rabbitmqctl set_user_tags openstack administrator
 ```

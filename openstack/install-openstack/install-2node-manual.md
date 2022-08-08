@@ -759,8 +759,17 @@ firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 # ...
 interface_driver = linuxbridge
 ```
+- tạo symbolic link
+```
+ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+```
+- đồng bộ db
+```
+su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+```
 - khởi chạy dịch vụ
 ```
+systemctl restart openstack-nova-api.service
 systemctl enable neutron-server.service neutron-linuxbridge-agent.service neutron-l3-agent.service
 systemctl start  neutron-server.service neutron-linuxbridge-agent.service neutron-l3-agent.service
 ```

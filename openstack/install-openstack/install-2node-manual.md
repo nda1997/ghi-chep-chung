@@ -46,8 +46,8 @@ net.ipv4.tcp_keepalive_probes = 6
 net.ipv4.ip_forward = 1
 net.ipv4.conf.all.rp_filter = 0
 net.ipv4.conf.default.rp_filter = 0
-net.bridge.bridge-nf-call-iptables
-net.bridge.bridge-nf-call-ip6tables
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
 EOF
 
 ```
@@ -57,7 +57,7 @@ Kiểm tra lại
 #### Nếu báo lỗi thì là do thiếu module dưới kernel . thực hiện thêm 2 module sau 
 ```
 modprobe br_netfilter
-modprobe 
+modprobe ip_conntrack
 ``` 
 
 - Khai báo file host các node 
@@ -111,7 +111,7 @@ sed -i "s/-l 127.0.0.1,::1/ 0.0.0.0,::/g" /etc/sysconfig/memcached
 
 - Chỉnh sửa cấu hình mariadb 
 ```
-cp /etc/my.cnf.d/server.cnf /etc/my.cnf.d/server.cnf.orig
+cp /etc/my.cnf.d/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf.orig
 cat << EOF >> /etc/my.cnf.d/openstack.cnf 
 [mysqld]
 bind-address = 0.0.0.0
@@ -157,11 +157,12 @@ CREATE DATABASE keystone;
 GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'keystone';
 GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'keystone';
 flush privileges;
+exit;
 ```
 
 - Cài đặt các gói liên quan
 ```
-yum install openstack-keystone httpd mod_wsgi -y
+yum install openstack-keystone openstack-utils python-openstackclient httpd mod_wsgi -y
 ```
 
 - Cấu hình keystone 
@@ -184,7 +185,7 @@ chown root:keystone /etc/keystone/keystone.conf
 su -s /bin/sh -c "keystone-manage db_sync" keystone
 ```
 
-- Cài repo fernet key
+- Cài fernet key
 ```
 keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
 keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
@@ -233,7 +234,7 @@ openstack domain create --description "An Example Domain" example
 ```
 - Tạo project 
 ```
-openstack project create service --domain default --description "Service Project
+openstack project create service --domain default --description "Service Project"
 openstack project create demo --domain default --description "Demo Project" 
 ```
 - tạo user 
@@ -346,7 +347,7 @@ GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'%' IDENTIFIED BY 'placement'
 ```
 - Tạo user và phần quyền 
 ```
-openstack user create --domain default --password-prompt placement
+openstack user create --domain default --password placement
 openstack role add --project service --user placement admin
 ```
 - Tạo service và endpoint
@@ -810,7 +811,61 @@ systemctl restart httpd.service memcached.service
 ## 5. Cài đặt node compute
 
 ***5.1 cài đặt nova-compute***
-
+- install package
+```
+yum install openstack-nova-compute
+```
+- chỉnh sửa file  /etc/nova/nova.conf
+```
+[DEFAULT]
+# ...
+enabled_apis = osapi_compute,metadata
+transport_url = rabbit://openstack:openstack@controller
+my_ip = 172.16.4.200
+use_neutron = true
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+[api]
+# ...
+auth_strategy = keystone
+[keystone_authtoken]
+# ...
+www_authenticate_uri = http://controller:5000/
+auth_url = http://controller:5000/
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = nova
+password = nova
+[vnc]
+# ...
+enabled = true
+server_listen = 0.0.0.0
+server_proxyclient_address = $my_ip
+novncproxy_base_url = http://controller:6080/vnc_auto.html
+[glance]
+# ...
+api_servers = http://controller:9292
+[oslo_concurrency]
+# ...
+lock_path = /var/lib/nova/tmp
+[placement]
+# ...
+region_name = RegionOne
+project_domain_name = Default
+project_name = service
+auth_type = password
+user_domain_name = Default
+auth_url = http://controller:5000/v3
+username = placement
+password = placement
+```
+- Khởi chạy service 
+```
+systemctl enable libvirtd.service openstack-nova-compute.service
+systemctl start libvirtd.service openstack-nova-compute.service
+```
 
 
 

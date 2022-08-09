@@ -9,4 +9,11 @@
 WEBROOT = '/dashboard/'
 ```
 
+- Lỗi placement-api
+Thêm vào file /etc/httpd/conf.d/00-placement-api.conf sau  dòng 15
+```
+<Directory /usr/bin>
+    Require all granted
+  </Directory>
 
+```

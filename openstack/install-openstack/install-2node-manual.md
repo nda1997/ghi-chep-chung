@@ -745,6 +745,22 @@ vni_ranges = 1:1000
 enable_ipset = true
 ```
 *****Lưu ý sau khi configure ml2 plug-in thì xóa bỏ dòng type_driver để tránh việc không nhất quán database*****
+-----------------------------------------------------------
+- chỉnh sửa file /etc/neutron/dhcp_agent.ini
+```
+[DEFAULT]
+# ...
+interface_driver = linuxbridge
+dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+enable_isolated_metadata = true
+```
+- chỉnh sửa file /etc/neutron/metadata_agent.ini
+```
+[DEFAULT]
+# ...
+nova_metadata_host = controller
+metadata_proxy_shared_secret = admin
+```
 - Chỉnh sửa file /etc/neutron/plugins/ml2/linuxbridge_agent.ini
 ```
 [linux_bridge]

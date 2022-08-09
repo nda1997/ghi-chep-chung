@@ -829,7 +829,7 @@ systemctl restart httpd.service memcached.service
 ***5.1 cài đặt nova-compute***
 - install package
 ```
-yum install openstack-nova-compute
+yum install openstack-nova-compute -y
 ```
 - chỉnh sửa file  /etc/nova/nova.conf
 ```
@@ -883,5 +883,82 @@ systemctl enable libvirtd.service openstack-nova-compute.service
 systemctl start libvirtd.service openstack-nova-compute.service
 ```
 
+***5.2 Cài đặt neutron ***
+- install package 
+```
+yum install openstack-neutron-ml2 openstack-neutron  openstack-neutron-linuxbridge ebtables -y 
+```
+- Sửa file /etc/neutron/neutron.conf
+```
+[DEFAULT]
+# ...
+transport_url = rabbit://openstack:openstack@controller1
+auth_strategy = keystone
+[keystone_authtoken]
+# ...
+www_authenticate_uri = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = neutron
+[oslo_concurrency]
+# ...
+lock_path = /var/lib/neutron/tmp
 
 
+- Khai báo neutron trong nova /etc/nova/nova.conf
+```
+[neutron]
+# ...
+auth_url = http://controller:5000
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = neutron
+password = neutron
+```
+
+*** Lựa chọn 1 : provider network ***
+- Sửa file /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+```
+[linux_bridge]
+physical_interface_mappings = provider:PROVIDER_INTERFACE_NAME
+
+[vxlan]
+enable_vxlan = false
+[securitygroup]
+# ...
+enable_security_group = true
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+```
+*** Lựa chọn 2 : self-service network ***
+```
+[linux_bridge]
+physical_interface_mappings = provider:PROVIDER_INTERFACE_NAME
+[vxlan]
+enable_vxlan = true
+local_ip = OVERLAY_INTERFACE_IP_ADDRESS 
+l2_population = true
+[securitygroup]
+# ...
+enable_security_group = true
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+```
+- Cấu hình /etc/neutron/dhcp_agent.ini
+```
+[DEFAULT]
+# ...
+interface_driver = linuxbridge
+dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+enable_isolated_metadata = true
+```
+- Cấu hình /etc/neutron/metadata_agent.ini
+```
+nova_metadata_host = 172.16.4.200
+metadata_proxy_shared_secret = admin

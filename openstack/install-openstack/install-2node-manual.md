@@ -892,7 +892,7 @@ yum install openstack-neutron-ml2 openstack-neutron  openstack-neutron-linuxbrid
 ```
 [DEFAULT]
 # ...
-transport_url = rabbit://openstack:openstack@controller1
+transport_url = rabbit://openstack:openstack@controller
 auth_strategy = keystone
 [keystone_authtoken]
 # ...
@@ -908,7 +908,7 @@ password = neutron
 [oslo_concurrency]
 # ...
 lock_path = /var/lib/neutron/tmp
-
+```
 
 - Khai báo neutron trong nova /etc/nova/nova.conf
 ```
@@ -922,9 +922,11 @@ region_name = RegionOne
 project_name = service
 username = neutron
 password = neutron
+service_metadata_proxy = True
+metadata_proxy_shared_secret = admin
 ```
 
-*** Lựa chọn 1 : provider network ***
+***Lựa chọn 1 : provider network ***
 - Sửa file /etc/neutron/plugins/ml2/linuxbridge_agent.ini
 ```
 [linux_bridge]
@@ -937,7 +939,8 @@ enable_vxlan = false
 enable_security_group = true
 firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 ```
-*** Lựa chọn 2 : self-service network ***
+***Lựa chọn 2 : self-service network ***
+- Sửa file /etc/neutron/plugins/ml2/linuxbridge_agent.ini
 ```
 [linux_bridge]
 physical_interface_mappings = provider:PROVIDER_INTERFACE_NAME
@@ -950,6 +953,7 @@ l2_population = true
 enable_security_group = true
 firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 ```
+---------------------------------------------------------------
 - Cấu hình /etc/neutron/dhcp_agent.ini
 ```
 [DEFAULT]
@@ -960,5 +964,14 @@ enable_isolated_metadata = true
 ```
 - Cấu hình /etc/neutron/metadata_agent.ini
 ```
+[DEFAULT]
 nova_metadata_host = 172.16.4.200
 metadata_proxy_shared_secret = admin
+memcache_servers = 172.16.4.200:11211
+```
+- Khởi chạy service 
+```
+systemctl restart openstack-nova-compute.service
+systemctl enable neutron-linuxbridge-agent.service neutron-dhcp-agent neutron-metadata-agent
+systemctl start neutron-linuxbridge-agent.service neutron-dhcp-agent neutron-metadata-agent
+```

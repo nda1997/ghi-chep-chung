@@ -572,8 +572,8 @@ su -s /bin/sh -c "cinder-manage db sync" cinder
 ```
 - Khởi động service
 ```
-systemctl enable openstack-cinder-volume.service target.service lvm2-lvmetad.service
-systemctl start openstack-cinder-volume.service target.service lvm2-lvmetad.service
+systemctl enable openstack-cinder-volume.service target.service lvm2-lvmetad.service openstack-cinder-api.service openstack-cinder-scheduler.service
+systemctl start openstack-cinder-volume.service target.service lvm2-lvmetad.service openstack-cinder-api.service openstack-cinder-scheduler.service
 ```
 - thêm cấu hình /etc/nova/nova.conf
 ```

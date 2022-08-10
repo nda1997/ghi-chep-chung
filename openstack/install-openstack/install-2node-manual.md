@@ -24,6 +24,9 @@ Môi trường cài đặt những thứ cơ bản nhất .
 
 - Trước tiên cài đặt 1 số dịch vụ cơ bản trên tất cả các node 
 - set hostname cho từng node 
+```
+hostnamectl set-hostname controller 
+```
 - Tắt selinux , firewalld
 ``` 
 systemctl stop firewalld 

@@ -127,7 +127,7 @@ EOF
 ```
 Lưu ý : Đặt pasword cho user mysql 
 ###### mysql_secure_installation ####
-
+- Ở đây tôi đặt luôn là root
 - Cấu hình rabbitMQ
 
 ```

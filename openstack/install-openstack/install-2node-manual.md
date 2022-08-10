@@ -880,7 +880,7 @@ password = nova
 enabled = true
 server_listen = 0.0.0.0
 server_proxyclient_address = $my_ip
-novncproxy_base_url = http://controller:6080/vnc_auto.html
+novncproxy_base_url = http://172.16.4.200:6080/vnc_auto.html
 [glance]
 # ...
 api_servers = http://controller:9292

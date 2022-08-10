@@ -203,9 +203,8 @@ keystone-manage bootstrap --bootstrap-password admin \
   --bootstrap-region-id RegionOne
 ```
 
-- Cấu hình Apache http server
+- Cấu hình /etc/httpd/conf/httpd.conf
 ```
-vi /etc/httpd/conf/httpd.conf
 ServerName controller
 ```
 

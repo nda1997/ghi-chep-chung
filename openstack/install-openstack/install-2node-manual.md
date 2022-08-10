@@ -820,7 +820,8 @@ OPENSTACK_API_VERSIONS = {
 }
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "Default"
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
-
+TIME_ZONE = "TIME_ZONE"
+WEBROOT = '/dashboard/'
 *****Nếu chọn provider network thêm đoạn sau để disable support layer3-network*****
 OPENSTACK_NEUTRON_NETWORK = {
     ...
@@ -833,7 +834,6 @@ OPENSTACK_NEUTRON_NETWORK = {
     'enable_vpn': False,
     'enable_fip_topology_check': False,
 }
-TIME_ZONE = "TIME_ZONE"
 ```
 - Thêm dòng sau vào file /etc/httpd/conf.d/openstack-dashboard.conf
 ```

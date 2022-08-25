@@ -79,7 +79,7 @@ mysql_secure_installation
 ```
 - thêm user openstack vào rabbitmq
 ```
-rabbitmqctl add_user openstack RABBIT_PASS
+rabbitmqctl add_user openstack openstack
 ```
 - cấp quyền cho user openstack
 ```
@@ -87,7 +87,7 @@ rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 ```
 - Cài đặt memcached
 ```
-apt install memcached python3-memcache
+apt install memcached python3-memcache -y
 ```
 - chỉnh sửa file /etc/memcached.conf
 ```
@@ -101,7 +101,7 @@ service memcached restart
 ```
 apt install etcd -y
 ```
-- Cấu hình file etc/default/etcd
+- Cấu hình file /etc/default/etcd
 ```
 ETCD_NAME="controller"
 ETCD_DATA_DIR="/var/lib/etcd"
@@ -122,19 +122,19 @@ systemctl restart etcd
 - Tạo database
 ```
 CREATE DATABASE keystone;
-GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'KEYSTONE_DBPASS';
-GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'KEYSTONE_DBPASS';
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'keystone';
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'keystone';
 ```
 - cài đặt packages
 ```
-apt install keystone
+apt install keystone -y
 ```
 ***Lưu ý***: Trong package này đã cài sẵn apache2 và mod_wsgi chạy trên port 5000 phục vụ cho identity service 
 - Chỉnh sửa các section trong file /etc/keystone/keystone.conf
 ```
 [database]
 # ...
-connection = mysql+pymysql://keystone:KEYSTONE_DBPASS@controller/keystone
+connection = mysql+pymysql://keystone:keystone@controller/keystone
 [token]
 # ...
 provider = fernet
@@ -150,7 +150,7 @@ keystone-manage credential_setup --keystone-user keystone --keystone-group keyst
 ```
 - tạo boostrap 
 ```
-keystone-manage bootstrap --bootstrap-password ADMIN_PASS \
+keystone-manage bootstrap --bootstrap-password admin \
   --bootstrap-admin-url http://controller:5000/v3/ \
   --bootstrap-internal-url http://controller:5000/v3/ \
   --bootstrap-public-url http://controller:5000/v3/ \
@@ -239,8 +239,8 @@ openstack token issue
 - Tạo Database
 ```
 CREATE DATABASE glance;
-GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'GLANCE_DBPASS';
-GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'GLANCE_DBPASS';
+GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'glance';
+GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'glance';
 ```
 - Tạo user glance 
 ```
@@ -267,10 +267,8 @@ apt install glance -y
 - chỉnh sửa các section trong file /etc/glance/glance-api.conf
 ```
 [database]
-# ...
 connection = mysql+pymysql://glance:glance@controller/glance
 [keystone_authtoken]
-# ...
 www_authenticate_uri = http://controller:5000
 auth_url = http://controller:5000
 memcached_servers = controller:11211
@@ -281,10 +279,8 @@ project_name = service
 username = glance
 password = glance
 [paste_deploy]
-# ...
 flavor = keystone
 [glance_store]
-# ...
 stores = file,http
 default_store = file
 filesystem_store_datadir = /var/lib/glance/images/
@@ -308,8 +304,8 @@ glance image-list
 - Tạo DB
 ```
 CREATE DATABASE placement;
-GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'localhost' IDENTIFIED BY 'PLACEMENT_DBPASS';
-GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'%' IDENTIFIED BY 'PLACEMENT_DBPASS';
+GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'localhost' IDENTIFIED BY 'placement';
+GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'%' IDENTIFIED BY 'placement';
 ```
 - Tạo user cho service placement và thêm quyền 
 ```
@@ -330,14 +326,10 @@ apt install placement-api -y
 - chỉnh sửa file cấu hình /etc/placement/placement.conf
 ```
 [placement_database]
-# ...
 connection = mysql+pymysql://placement:placement@controller/placement
 [api]
-# ...
 auth_strategy = keystone
-
 [keystone_authtoken]
-# ...
 auth_url = http://controller:5000/v3
 memcached_servers = controller:11211
 auth_type = password
@@ -384,20 +376,15 @@ apt install nova-api nova-conductor nova-novncproxy nova-scheduler -y
 - Chỉnh sửa cấu hình trong file /etc/nova/nova.conf
 ```
 [api_database]
-# ...
 connection = mysql+pymysql://nova:nova@controller/nova_api
 [database]
-# ...
 connection = mysql+pymysql://nova:nova@controller/nova
 [DEFAULT]
-# ...
-transport_url = rabbit://openstack:RABBIT_PASS@controller:5672/
+transport_url = rabbit://openstack:openstack@controller:5672/
 my_ip = 172.16.4.200
 [api]
-# ...
 auth_strategy = keystone
 [keystone_authtoken]
-# ...
 www_authenticate_uri = http://controller:5000/
 auth_url = http://controller:5000/
 memcached_servers = controller:11211
@@ -409,17 +396,13 @@ username = nova
 password = nova
 [vnc]
 enabled = true
-# ...
 server_listen = $my_ip
 server_proxyclient_address = $my_ip
 [glance]
-# ...
 api_servers = http://controller:9292
 [oslo_concurrency]
-# ...
 lock_path = /var/lib/nova/tmp
 [placement]
-# ...
 region_name = RegionOne
 project_domain_name = Default
 project_name = service
@@ -474,10 +457,8 @@ apt install neutron-server neutron-plugin-ml2  neutron-linuxbridge-agent neutron
 - chỉnh sửa các section trong file cấu hình /etc/neutron/neutron.conf
 ```
 [database]
-# ...
 connection = mysql+pymysql://neutron:neutron@controller/neutron
 [DEFAULT]
-# ...
 core_plugin = ml2
 service_plugins =
 transport_url = rabbit://openstack:openstack@controller
@@ -485,7 +466,6 @@ auth_strategy = keystone
 notify_nova_on_port_status_changes = true
 notify_nova_on_port_data_changes = true
 [keystone_authtoken]
-# ...
 www_authenticate_uri = http://controller:5000
 auth_url = http://controller:5000
 memcached_servers = controller:11211
@@ -496,7 +476,6 @@ project_name = service
 username = neutron
 password = neutron
 [nova]
-# ...
 auth_url = http://controller:5000
 auth_type = password
 project_domain_name = default
@@ -506,7 +485,6 @@ project_name = service
 username = nova
 password = nova
 [oslo_concurrency]
-# ...
 lock_path = /var/lib/neutron/tmp
 ```
 - Cấu hình module layer2 trong file /etc/neutron/plugins/ml2/ml2_conf.ini
@@ -534,15 +512,19 @@ firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 - Cấu hình file /etc/neutron/dhcp_agent.ini
 ```
 [DEFAULT]
-# ...
 interface_driver = linuxbridge
 dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
 enable_isolated_metadata = true
 ```
+- Cấu hình file /etc/neutron/metadata_agent.ini
+```
+[DEFAULT]
+nova_metadata_host = controller
+metadata_proxy_shared_secret = METADATA_SECRET
+```
 - Chỉnh cấu hình nova kết nối với neutron trong file /etc/nova/nova.conf
 ```
 [neutron]
-# ...
 auth_url = http://controller:5000
 auth_type = password
 project_domain_name = default
@@ -552,7 +534,7 @@ project_name = service
 username = neutron
 password = neutron
 service_metadata_proxy = true
-metadata_proxy_shared_secret = METADATA_SECRET
+metadata_proxy_shared_secret = admin
 ```
 - Đồng bộ DB và khởi chạy service
 ```
@@ -577,7 +559,7 @@ CACHES = {
          'LOCATION': 'controller:11211',
     }
 }
-OPENSTACK_KEYSTONE_URL = "http://%s/identity/v3" % OPENSTACK_HOST
+OPENSTACK_KEYSTONE_URL = "http://%s:5000/identity/v3" % OPENSTACK_HOST
 OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
 OPENSTACK_API_VERSIONS = {
     "identity": 3,
@@ -587,7 +569,6 @@ OPENSTACK_API_VERSIONS = {
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "Default"
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 OPENSTACK_NEUTRON_NETWORK = {
-    ...
     'enable_router': False,
     'enable_quotas': False,
     'enable_ipv6': False,
@@ -596,6 +577,7 @@ OPENSTACK_NEUTRON_NETWORK = {
     'enable_fip_topology_check': False,
 }
 TIME_ZONE = "Asia/Ho_Chi_Minh"
+WEBROOT='/horizon/'
 ```
 - Thêm cấu hình trong /etc/apache2/conf-available/openstack-dashboard.conf
 ```

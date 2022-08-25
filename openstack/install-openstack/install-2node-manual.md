@@ -826,7 +826,6 @@ TIME_ZONE = "TIME_ZONE"
 WEBROOT = '/dashboard/'
 *****Nếu chọn provider network thêm đoạn sau để disable support layer3-network*****
 OPENSTACK_NEUTRON_NETWORK = {
-    ...
     'enable_router': False,
     'enable_quotas': False,
     'enable_distributed_router': False,

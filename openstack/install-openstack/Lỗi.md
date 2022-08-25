@@ -17,3 +17,6 @@ Thêm vào file /etc/httpd/conf.d/00-placement-api.conf sau  dòng 15
   </Directory>
 
 ```
+
+- ![image](https://user-images.githubusercontent.com/50499526/186562296-5c4eebbf-1090-4fa0-ba95-451a91c8e395.png)
+

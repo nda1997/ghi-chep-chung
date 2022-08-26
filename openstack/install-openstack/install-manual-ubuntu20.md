@@ -587,4 +587,195 @@ WSGIApplicationGroup %{GLOBAL}
 ```
 systemctl reload apache2.service
 ```
+- Cài đặt cinder
+- Tạo DB
+```
+CREATE DATABASE cinder;
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' IDENTIFIED BY 'cinder';
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'cinder';
+```
+- Tạo user và phân quyền
+```
+openstack user create cinder --domain default --password cinder
+openstack role add --project service --user cinder admin
+```
+- tạo service và endpoint
+```
+openstack role add --project service --user cinder admin
+openstack service create --name cinderv3 --description "OpenStack Block Storage" volumev3
+openstack endpoint create --region RegionOne volumev3 public http://controller:8776/v3/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev3 internal http://controller:8776/v3/%\(project_id\)s
+openstack endpoint create --region RegionOne volumev3 admin http://controller:8776/v3/%\(project_id\)s
+```
+- cài các gói liên quan
+```
+apt install cinder-api cinder-scheduler lvm2 thin-provisioning-tools cinder-volume tgt -y
+```
+- chỉnh sửa file /etc/cinder/cinder.conf
+```
+[database]
+connection = mysql+pymysql://cinder:cinder@controller/cinder
+[DEFAULT]
+transport_url = rabbit://openstack:openstack@controller
+auth_strategy = keystone
+my_ip = 172.16.4.200
+enabled_backends = lvm
+glance_api_servers = http://controller:9292
+[keystone_authtoken]
+www_authenticate_uri = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = cinder
+password = cinder
+[oslo_concurrency]
+lock_path = /var/lib/cinder/tmp
+[lvm]
+volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
+volume_group = cinder-volumes
+target_protocol = iscsi
+target_helper = tgtadm
+```
+- thêm cấu hình file /etc/nova/nova.conf
+```
+[cinder]
+os_region_name = RegionOne
+```
+- Đồng bộ DB
+```
+su -s /bin/sh -c "cinder-manage db sync" cinder
+```
+- tạo volume-group
+```
+pvcreate /dev/sdb
+vgcreate cinder-volumes /dev/sdb
+```
+- chỉnh file /etc/lvm/lvm.conf
+```
+devices {
+...
+filter = [ "a/.*/"]
+```
+- Khởi chạy service
+```
+service tgt restart
+service cinder-volume restart
+service cinder-scheduler restart
+service apache2 restart
+```
+---
+## 2. Cấu hình node compute
+- cài đặt nova
+```
+apt install nova-compute -y
+```
+- chỉnh cấu hình file /etc/nova/nova.conf
+```
+[DEFAULT]
+transport_url = rabbit://openstack:openstack@controller
+my_ip = MANAGEMENT_INTERFACE_IP_ADDRESS
+[api]
+auth_strategy = keystone
+[keystone_authtoken]
+www_authenticate_uri = http://controller:5000/
+auth_url = http://controller:5000/
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = nova
+password = nova
+[vnc]
+enabled = true
+server_listen = 0.0.0.0
+server_proxyclient_address = $my_ip
+novncproxy_base_url = http://controller:6080/vnc_auto.html
+[glance]
+api_servers = http://controller:9292
+[oslo_concurrency]
+lock_path = /var/lib/nova/tmp
+[placement]
+region_name = RegionOne
+project_domain_name = Default
+project_name = service
+auth_type = password
+user_domain_name = Default
+auth_url = http://controller:5000/v3
+username = placement
+password = placement
+```
+- sửa file /etc/nova/nova-compute.conf
+```
+[libvirt]
+virt_type = qemu
+```
+- Khởi động service 
+```
+service nova-compute restart
+```
+- cài đặt neutron
+```
+apt install neutron-linuxbridge-agent neutron-dhcp-agent  neutron-metadata-agent -y
+```
+- chỉnh sửa file   /etc/neutron/neutron.conf
+```
+[DEFAULT]
+transport_url = rabbit://openstack:openstack@controller
+auth_strategy = keystone
+[keystone_authtoken]
+www_authenticate_uri = http://controller:5000
+auth_url = http://controller:5000
+memcached_servers = controller:11211
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+project_name = service
+username = neutron
+password = neutron
+[oslo_concurrency]
+lock_path = /var/lib/neutron/tmp
+```
+- Chỉnh sửa file /etc/neutron/plugins/ml2/linuxbridge_agent.ini
+```
+[linux_bridge]
+physical_interface_mappings = provider:PROVIDER_INTERFACE_NAME
+[vxlan]
+enable_vxlan = false
+[securitygroup]
+enable_security_group = true
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+```
+- sửa file /etc/neutron/metadata_agent.ini
+```
+[DEFAULT]
+nova_metadata_host = controller
+metadata_proxy_shared_secret = admin
+```
+- thêm cấu hình file /etc/nova/nova.conf
+```
+[neutron]
+auth_url = http://controller:5000
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = neutron
+password = neutron
+```
+- chạy service
+```
+service neutron-linuxbridge-agent restart
+service neutron-dhcp-agent restart
+service neutron-metadata-agent restart
+```
+
+
+
+
+
 

@@ -1,0 +1,8 @@
+12. **Enable and start the ovs service**::
+
+     # systemctl enable openvswitch.service
+     # systemctl start openvswitch.service
+13. **Set up the ovs bridge to the public network**::
+
+     # ovs-vsctl add-br br-eth0
+     # ovs-vsctl add-port br-eth0 eth0

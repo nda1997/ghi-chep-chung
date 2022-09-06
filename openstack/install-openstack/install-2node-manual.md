@@ -196,11 +196,16 @@ keystone-manage credential_setup --keystone-user keystone --keystone-group keyst
 
 - Bootstrap keystone 
 ```
-keystone-manage bootstrap --bootstrap-password admin \
-  --bootstrap-admin-url http://controller:5000/v3/ \
-  --bootstrap-internal-url http://controller:5000/v3/ \
-  --bootstrap-public-url http://controller:5000/v3/ \
-  --bootstrap-region-id RegionOne
+keystone-manage bootstrap \
+    --bootstrap-password admin \
+    --bootstrap-username admin \
+    --bootstrap-project-name admin \
+    --bootstrap-role-name admin \
+    --bootstrap-service-name keystone \
+    --bootstrap-region-id RegionOne \
+    --bootstrap-admin-url http://controller1:5000/v3/ \
+    --bootstrap-public-url http://controller1:5000/v3/ \
+    --bootstrap-internal-url http://controller1:5000/v3/
 ```
 
 - Cấu hình /etc/httpd/conf/httpd.conf

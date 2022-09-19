@@ -32,15 +32,25 @@ B5: Consumer sẽ xử lí gói tin
 - Direct: Messages sẽ chuyển đến hàng đợi có binding key khớp với  routing key của messages 
 
 ![image](https://user-images.githubusercontent.com/50499526/190981236-6eda162d-5240-4d3c-97ba-b6acb352c997.png)
+    
+        - QueueA  ( create_pdf_queue) có liên kết với exchange với binding-key= pdf-create
+        - Các message mới được chuyển đến có routing-key là pdf-create sẽ đc exchange định tuyến tới hàng đợi nào có binding-key=routing-key. Ở đây là queueA
 
 - Fanout: Định tuyến toàn bộ message đến tất cả các hàng đợi có binding 
 
 ![image](https://user-images.githubusercontent.com/50499526/190981836-13127c18-67ee-4910-ac7d-953d04d0955e.png)
 
+        - Message được chuyển đến tất cả các hàng đợi bất kể routing-key là gì 
 - Topic: Thực hiện khi routing key khớp với routing pattern specified ở phần binding
 
 ![image](https://user-images.githubusercontent.com/50499526/190981394-87b14bc2-c108-40c3-a175-499b3129f8c6.png)
 
+        - exchange nhận các message agreements
+        - Kiểm tra thấy có 2 binding phù hợp là agreement-eu-berlin và agreement-eu-berlin-headstore
+        - Routing tới 2 binding có các giá trị pattern khớp với exchange
+
 - Headers: sử dụng thuộc tính tiêu đề cho việc định tuyến
 
 ![image](https://user-images.githubusercontent.com/50499526/190981881-8710da62-a730-48c6-affe-9cc444c1c7f1.png)
+
+        - Message sẽ được chuyển tới queue có các trường ( key=value) khớp với binding

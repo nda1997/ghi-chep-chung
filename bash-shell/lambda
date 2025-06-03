@@ -1,0 +1,79 @@
+import boto3
+import json
+import base64
+from cryptography.fernet import Fernet
+
+# ====== Configuration ======
+ALERT_EMAIL = "your-alert@example.com"
+FROM_EMAIL = "your-sender@example.com"  # Must be verified in SES
+ENCRYPTION_KEY = b'your-32-byte-base64-key=='  # Fernet key (keep it safe!)
+THRESHOLD = 10  # Minimum IPs available before alert
+# ===========================
+
+ec2 = boto3.client('ec2')
+ses = boto3.client('ses')
+
+cipher = Fernet(ENCRYPTION_KEY)
+
+
+def encrypt_message(message):
+    return cipher.encrypt(message.encode()).decode()
+
+
+def get_available_ips(subnet_id):
+    # Get subnet details
+    subnet = ec2.describe_subnets(SubnetIds=[subnet_id])['Subnets'][0]
+    total_ips = subnet['IpAddressCount']
+    used_ips = subnet['AvailableIpAddressCount']
+    available_ips = used_ips
+    return available_ips
+
+
+def lambda_handler(event, context):
+    subnets = ec2.describe_subnets()['Subnets']
+    alerts = []
+
+    for subnet in subnets:
+        subnet_id = subnet['SubnetId']
+        available_ips = subnet['AvailableIpAddressCount']
+
+        if available_ips < THRESHOLD:
+            cidr = subnet['CidrBlock']
+            vpc_id = subnet['VpcId']
+            msg = f"Subnet {subnet_id} in VPC {vpc_id} (CIDR: {cidr}) has only {available_ips} IPs available."
+            alerts.append(msg)
+
+    if alerts:
+        # Combine and encrypt the alert message
+        message = "\n".join(alerts)
+        encrypted_message = encrypt_message(message)
+        send_encrypted_email(encrypted_message)
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps({'message': 'Subnet IP check completed.'})
+    }
+
+
+def send_encrypted_email(encrypted_body):
+    subject = "🔐 Subnet IP Alert - Encrypted"
+
+    response = ses.send_email(
+        Source=FROM_EMAIL,
+        Destination={'ToAddresses': [ALERT_EMAIL]},
+        Message={
+            'Subject': {'Data': subject},
+            'Body': {
+                'Text': {
+                    'Data': f"Encrypted Alert Message:\n\n{encrypted_body}"
+                }
+
+
+
+from cryptography.fernet import Fernet
+print(Fernet.generate_key().decode())
+
+            }
+        }
+    )
+    return response

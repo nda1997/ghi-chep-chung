@@ -1,78 +1,75 @@
 import boto3
-import json
-import base64
-from cryptography.fernet import Fernet
-
-# ====== Configuration ======
-ALERT_EMAIL = "your-alert@example.com"
-FROM_EMAIL = "your-sender@example.com"  # Must be verified in SES
-ENCRYPTION_KEY = b'your-32-byte-base64-key=='  # Fernet key (keep it safe!)
-THRESHOLD = 10  # Minimum IPs available before alert
-# ===========================
+import os
 
 ec2 = boto3.client('ec2')
-ses = boto3.client('ses')
+ses = boto3.client('ses', region_name=os.environ.get('SES_REGION', 'us-east-1'))
 
-cipher = Fernet(ENCRYPTION_KEY)
+# Email người gửi và nhận
+SENDER = os.environ.get('SENDER_EMAIL')
+RECIPIENT = os.environ.get('RECIPIENT_EMAIL')
 
-
-def encrypt_message(message):
-    return cipher.encrypt(message.encode()).decode()
-
-
-def get_available_ips(subnet_id):
-    # Get subnet details
-    subnet = ec2.describe_subnets(SubnetIds=[subnet_id])['Subnets'][0]
-    total_ips = subnet['IpAddressCount']
-    used_ips = subnet['AvailableIpAddressCount']
-    available_ips = used_ips
-    return available_ips
-
+# Giới hạn cảnh báo
+THRESHOLD = 10
 
 def lambda_handler(event, context):
+    # Lấy danh sách subnets
     subnets = ec2.describe_subnets()['Subnets']
-    alerts = []
-
+    
+    # Lấy danh sách ENIs (Elastic Network Interfaces) để đếm IP đang dùng
+    enis = ec2.describe_network_interfaces()['NetworkInterfaces']
+    
+    # Mỗi subnet có một CIDR block, ta tính tổng IP, rồi trừ IP đang dùng
+    results = []
+    
     for subnet in subnets:
         subnet_id = subnet['SubnetId']
-        available_ips = subnet['AvailableIpAddressCount']
-
-        if available_ips < THRESHOLD:
-            cidr = subnet['CidrBlock']
-            vpc_id = subnet['VpcId']
-            msg = f"Subnet {subnet_id} in VPC {vpc_id} (CIDR: {cidr}) has only {available_ips} IPs available."
-            alerts.append(msg)
-
-    if alerts:
-        # Combine and encrypt the alert message
-        message = "\n".join(alerts)
-        encrypted_message = encrypt_message(message)
-        send_encrypted_email(encrypted_message)
-
+        cidr_block = subnet['CidrBlock']
+        available_ip_count = subnet['AvailableIpAddressCount']
+        
+        # Đếm IP đang dùng trong subnet này bằng số ENIs có SubnetId trùng
+        used_ips = sum(1 for eni in enis if eni['SubnetId'] == subnet_id)
+        
+        # Có thể dùng AvailableIpAddressCount trực tiếp hoặc tính lại:
+        # total_ips = calculate_ip_count(cidr_block)
+        # available_ips = total_ips - used_ips
+        
+        results.append({
+            'SubnetId': subnet_id,
+            'CidrBlock': cidr_block,
+            'AvailableIp': available_ip_count,
+            'UsedIp': used_ips
+        })
+    
+    # Tìm subnet còn <= THRESHOLD IP để cảnh báo
+    low_ip_subnets = [r for r in results if r['AvailableIp'] <= THRESHOLD]
+    
+    if low_ip_subnets:
+        # Gửi email cảnh báo
+        body = "Warning! The following subnets have low available IPs:\n\n"
+        for s in low_ip_subnets:
+            body += f"- Subnet {s['SubnetId']} ({s['CidrBlock']}): {s['AvailableIp']} IPs left\n"
+        
+        send_email("Subnet IP Availability Warning", body)
+    
     return {
         'statusCode': 200,
-        'body': json.dumps({'message': 'Subnet IP check completed.'})
+        'body': results
     }
 
-
-def send_encrypted_email(encrypted_body):
-    subject = "🔐 Subnet IP Alert - Encrypted"
-
+def send_email(subject, body):
     response = ses.send_email(
-        Source=FROM_EMAIL,
-        Destination={'ToAddresses': [ALERT_EMAIL]},
+        Source=SENDER,
+        Destination={
+            'ToAddresses': [RECIPIENT]
+        },
         Message={
-            'Subject': {'Data': subject},
+            'Subject': {
+                'Data': subject
+            },
             'Body': {
                 'Text': {
-                    'Data': f"Encrypted Alert Message:\n\n{encrypted_body}"
+                    'Data': body
                 }
-
-
-
-from cryptography.fernet import Fernet
-print(Fernet.generate_key().decode())
-
             }
         }
     )

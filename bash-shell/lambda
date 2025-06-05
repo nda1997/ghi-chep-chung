@@ -60,18 +60,27 @@ def lambda_handler(event, context):
     }
 
 
-
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Effect": "Allow",
       "Action": [
         "ec2:DescribeSubnets",
-        "kms:Encrypt",
-        "ses:SendEmail"
+        "ec2:DescribeVpcs",
+        "ec2:DescribeTags"
       ],
+      "Effect": "Allow",
       "Resource": "*"
+    },
+    {
+      "Action": "ses:SendEmail",
+      "Effect": "Allow",
+      "Resource": "*"
+    },
+    {
+      "Action": "kms:Encrypt",
+      "Effect": "Allow",
+      "Resource": "arn:aws:kms:your-region:your-account-id:key/your-kms-key-id"
     }
   ]
 }

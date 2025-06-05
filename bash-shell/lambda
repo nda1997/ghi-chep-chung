@@ -76,7 +76,6 @@ def send_email(subject, body):
     return response
 
 
-
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -84,13 +83,9 @@ def send_email(subject, body):
       "Effect": "Allow",
       "Action": [
         "ec2:DescribeSubnets",
-        "ec2:DescribeNetworkInterfaces"
+        "kms:Encrypt",
+        "ses:SendEmail"
       ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ses:SendEmail",
       "Resource": "*"
     }
   ]

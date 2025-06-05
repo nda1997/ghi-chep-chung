@@ -1,63 +1,85 @@
 import boto3
-import os
-import json
 import base64
+import os
 
-# Clients
 ec2 = boto3.client('ec2')
-ses = boto3.client('ses')
 kms = boto3.client('kms')
+ses = boto3.client('ses')
 
-# Environment variables
-EMAIL_RECIPIENT = os.environ['EMAIL_RECIPIENT']
+# Lấy biến môi trường
+KMS_KEY_ID = os.environ['KMS_KEY_ID']
 EMAIL_SENDER = os.environ['EMAIL_SENDER']
-KMS_KEY_ID = os.environ['KMS_KEY_ID']  # KMS Key ID for encryption
+EMAIL_RECIPIENT = os.environ['EMAIL_RECIPIENT']
+
+def encrypt_value(value: str) -> str:
+    """Mã hóa bằng KMS và trả về base64"""
+    response = kms.encrypt(
+        KeyId=KMS_KEY_ID,
+        Plaintext=value.encode('utf-8')
+    )
+    return base64.b64encode(response['CiphertextBlob']).decode('utf-8')
+
+def get_name_tag(tags, default='N/A'):
+    """Tìm tag 'Name' trong danh sách tag"""
+    for tag in tags:
+        if tag['Key'] == 'Name':
+            return tag['Value']
+    return default
 
 def lambda_handler(event, context):
+    # Lấy danh sách subnet
+    subnets = ec2.describe_subnets()['Subnets']
+    vpcs = ec2.describe_vpcs()['Vpcs']
+
     alert_messages = []
 
-    # Get list of subnets
-    response = ec2.describe_subnets()
-    subnets = response['Subnets']
-
     for subnet in subnets:
-        subnet_id = subnet['SubnetId']
         available_ips = subnet['AvailableIpAddressCount']
-        cidr_block = subnet['CidrBlock']
-        
+        subnet_id = subnet['SubnetId']
+        vpc_id = subnet['VpcId']
+        tags = subnet.get('Tags', [])
+        subnet_name = get_name_tag(tags)
+
+        # Tìm tên VPC từ danh sách VPCs
+        vpc_name = 'N/A'
+        for vpc in vpcs:
+            if vpc['VpcId'] == vpc_id:
+                vpc_name = get_name_tag(vpc.get('Tags', []))
+                break
+
         if available_ips < 10:
-            alert_messages.append(
-                f"Subnet {subnet_id} ({cidr_block}) chỉ còn {available_ips} IP available."
-            )
+            encrypted_subnet_id = encrypt_value(subnet_id)
+            encrypted_vpc_id = encrypt_value(vpc_id)
+
+            message = f"""
+ALERT: Subnet còn dưới 10 IP
+
+Tên Subnet : {subnet_name}
+Subnet ID (mã hóa): {encrypted_subnet_id}
+
+Tên VPC    : {vpc_name}
+VPC ID (mã hóa)    : {encrypted_vpc_id}
+
+Số IP còn lại: {available_ips}
+-------------------------------
+"""
+            alert_messages.append(message)
 
     if alert_messages:
-        alert_body = "\n".join(alert_messages)
+        full_message = "\n".join(alert_messages)
 
-        # Encrypt message using KMS
-        encrypted_response = kms.encrypt(
-            KeyId=KMS_KEY_ID,
-            Plaintext=alert_body.encode('utf-8')
-        )
-        encrypted_message = base64.b64encode(encrypted_response['CiphertextBlob']).decode('utf-8')
-
-        # Send email using SES
+        # Gửi mail nếu có cảnh báo
         ses.send_email(
             Source=EMAIL_SENDER,
             Destination={'ToAddresses': [EMAIL_RECIPIENT]},
             Message={
-                'Subject': {'Data': '⚠️ Cảnh báo Subnet sắp hết IP'},
-                'Body': {
-                    'Text': {
-                        'Data': f"Nội dung đã mã hóa:\n\n{encrypted_message}"
-                    }
-                }
+                'Subject': {'Data': '🔔 Cảnh báo Subnet thiếu IP'},
+                'Body': {'Text': {'Data': full_message}}
             }
         )
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Done checking subnets')
-    }
+        print("Đã gửi cảnh báo qua email.")
+    else:
+        print("Không có subnet nào cần cảnh báo.")
 
 
 {

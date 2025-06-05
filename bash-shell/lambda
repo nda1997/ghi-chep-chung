@@ -54,13 +54,13 @@ def lambda_handler(event, context):
             message = f"""
 ALERT: Subnet còn dưới 10 IP
 
-Tên Subnet : {subnet_name}
-Subnet ID (mã hóa): {encrypted_subnet_id}
+📛 Tên Subnet      : {subnet_name}
+🔐 Subnet ID       : {encrypted_subnet_id}
 
-Tên VPC    : {vpc_name}
-VPC ID (mã hóa)    : {encrypted_vpc_id}
+🌐 Tên VPC         : {vpc_name}
+🔐 VPC ID          : {encrypted_vpc_id}
 
-Số IP còn lại: {available_ips}
+📉 IP còn lại      : {available_ips}
 -------------------------------
 """
             alert_messages.append(message)

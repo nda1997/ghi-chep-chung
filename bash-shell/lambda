@@ -1,79 +1,64 @@
 import boto3
 import os
+import json
+import base64
 
+# Clients
 ec2 = boto3.client('ec2')
-ses = boto3.client('ses', region_name=os.environ.get('SES_REGION', 'us-east-1'))
+ses = boto3.client('ses')
+kms = boto3.client('kms')
 
-# Email người gửi và nhận
-SENDER = os.environ.get('SENDER_EMAIL')
-RECIPIENT = os.environ.get('RECIPIENT_EMAIL')
-
-# Giới hạn cảnh báo
-THRESHOLD = 10
+# Environment variables
+EMAIL_RECIPIENT = os.environ['EMAIL_RECIPIENT']
+EMAIL_SENDER = os.environ['EMAIL_SENDER']
+KMS_KEY_ID = os.environ['KMS_KEY_ID']  # KMS Key ID for encryption
 
 def lambda_handler(event, context):
-    # Lấy danh sách subnets
-    subnets = ec2.describe_subnets()['Subnets']
-    
-    # Lấy danh sách ENIs (Elastic Network Interfaces) để đếm IP đang dùng
-    enis = ec2.describe_network_interfaces()['NetworkInterfaces']
-    
-    # Mỗi subnet có một CIDR block, ta tính tổng IP, rồi trừ IP đang dùng
-    results = []
-    
+    alert_messages = []
+
+    # Get list of subnets
+    response = ec2.describe_subnets()
+    subnets = response['Subnets']
+
     for subnet in subnets:
         subnet_id = subnet['SubnetId']
+        available_ips = subnet['AvailableIpAddressCount']
         cidr_block = subnet['CidrBlock']
-        available_ip_count = subnet['AvailableIpAddressCount']
         
-        # Đếm IP đang dùng trong subnet này bằng số ENIs có SubnetId trùng
-        used_ips = sum(1 for eni in enis if eni['SubnetId'] == subnet_id)
-        
-        # Có thể dùng AvailableIpAddressCount trực tiếp hoặc tính lại:
-        # total_ips = calculate_ip_count(cidr_block)
-        # available_ips = total_ips - used_ips
-        
-        results.append({
-            'SubnetId': subnet_id,
-            'CidrBlock': cidr_block,
-            'AvailableIp': available_ip_count,
-            'UsedIp': used_ips
-        })
-    
-    # Tìm subnet còn <= THRESHOLD IP để cảnh báo
-    low_ip_subnets = [r for r in results if r['AvailableIp'] <= THRESHOLD]
-    
-    if low_ip_subnets:
-        # Gửi email cảnh báo
-        body = "Warning! The following subnets have low available IPs:\n\n"
-        for s in low_ip_subnets:
-            body += f"- Subnet {s['SubnetId']} ({s['CidrBlock']}): {s['AvailableIp']} IPs left\n"
-        
-        send_email("Subnet IP Availability Warning", body)
-    
-    return {
-        'statusCode': 200,
-        'body': results
-    }
+        if available_ips < 10:
+            alert_messages.append(
+                f"Subnet {subnet_id} ({cidr_block}) chỉ còn {available_ips} IP available."
+            )
 
-def send_email(subject, body):
-    response = ses.send_email(
-        Source=SENDER,
-        Destination={
-            'ToAddresses': [RECIPIENT]
-        },
-        Message={
-            'Subject': {
-                'Data': subject
-            },
-            'Body': {
-                'Text': {
-                    'Data': body
+    if alert_messages:
+        alert_body = "\n".join(alert_messages)
+
+        # Encrypt message using KMS
+        encrypted_response = kms.encrypt(
+            KeyId=KMS_KEY_ID,
+            Plaintext=alert_body.encode('utf-8')
+        )
+        encrypted_message = base64.b64encode(encrypted_response['CiphertextBlob']).decode('utf-8')
+
+        # Send email using SES
+        ses.send_email(
+            Source=EMAIL_SENDER,
+            Destination={'ToAddresses': [EMAIL_RECIPIENT]},
+            Message={
+                'Subject': {'Data': '⚠️ Cảnh báo Subnet sắp hết IP'},
+                'Body': {
+                    'Text': {
+                        'Data': f"Nội dung đã mã hóa:\n\n{encrypted_message}"
+                    }
                 }
             }
-        }
-    )
-    return response
+        )
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Done checking subnets')
+    }
+
 
 
 {
